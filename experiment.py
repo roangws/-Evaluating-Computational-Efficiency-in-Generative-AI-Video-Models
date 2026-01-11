@@ -251,10 +251,24 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     # Move video frames to CPU and convert to uint8 to free GPU memory before export
     if isinstance(video, torch.Tensor):
         video = video.cpu().numpy()
-    
-    # Ensure proper dtype (uint8) for video export
-    if video.dtype != np.uint8:
-        video = (video * 255).clip(0, 255).astype(np.uint8)
+
+    if isinstance(video, list):
+        converted_frames = []
+        for frame in video:
+            if isinstance(frame, torch.Tensor):
+                frame = frame.cpu().numpy()
+            else:
+                frame = np.asarray(frame)
+
+            if frame.dtype != np.uint8:
+                frame = (frame * 255).clip(0, 255).astype(np.uint8)
+
+            converted_frames.append(frame)
+        video = converted_frames
+    else:
+        # Ensure proper dtype (uint8) for video export
+        if video.dtype != np.uint8:
+            video = (video * 255).clip(0, 255).astype(np.uint8)
     
     # Clear GPU memory immediately after moving frames to CPU
     torch.cuda.empty_cache()
