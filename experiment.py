@@ -28,9 +28,9 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 5
-NUM_FRAMES = 24
-HEIGHT = 720
-WIDTH = 1280
+NUM_FRAMES = 16
+HEIGHT = 768
+WIDTH = 1360
 NUM_INFERENCE_STEPS = 50
 POWER_CONSUMPTION_WATTS = 200
 GPU_HOURLY_COST = 1.18  # USD/hour - A100 High-RAM (11.77 compute units @ $0.10)
@@ -229,6 +229,9 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     
     with torch.no_grad():
         try:
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+            gc.collect()
             video = pipeline(
                 prompt=prompt,
                 num_frames=NUM_FRAMES,
@@ -261,14 +264,20 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
                 frame = np.asarray(frame)
 
             if frame.dtype != np.uint8:
-                frame = (frame * 255).clip(0, 255).astype(np.uint8)
+                if frame.max() <= 1.0:
+                    frame = (frame * 255).clip(0, 255).astype(np.uint8)
+                else:
+                    frame = frame.clip(0, 255).astype(np.uint8)
 
             converted_frames.append(frame)
         video = converted_frames
     else:
         # Ensure proper dtype (uint8) for video export
         if video.dtype != np.uint8:
-            video = (video * 255).clip(0, 255).astype(np.uint8)
+            if video.max() <= 1.0:
+                video = (video * 255).clip(0, 255).astype(np.uint8)
+            else:
+                video = video.clip(0, 255).astype(np.uint8)
     
     # Clear GPU memory immediately after moving frames to CPU
     torch.cuda.empty_cache()
@@ -277,7 +286,10 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     model_short_name = model_name.split('/')[-1]
     output_path = f"{OUTPUT_VIDEO_DIR}/{model_short_name}/prompt_{prompt_index}/run_{run_number}.mp4"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    export_to_video(video, output_path, fps=8)
+    try:
+        export_to_video(video, output_path, fps=8, video_codec='libx264', pix_fmt='yuv420p')
+    except TypeError:
+        export_to_video(video, output_path, fps=8)
     
     result = {
         'model_name': model_name,
@@ -324,8 +336,11 @@ def load_model(model_name):
         if hasattr(pipeline, "enable_attention_slicing"):
             pipeline.enable_attention_slicing()
 
-        if hasattr(pipeline, "vae") and hasattr(pipeline.vae, "enable_tiling"):
-            pipeline.vae.enable_tiling()
+        if hasattr(pipeline, "vae"):
+            if hasattr(pipeline.vae, "config"):
+                pipeline.vae.config.scaling_factor = 1.0
+            if hasattr(pipeline.vae, 'enable_tiling'):
+                pipeline.vae.enable_tiling()
         
         print("✓ Model loaded successfully\n")
         return pipeline
