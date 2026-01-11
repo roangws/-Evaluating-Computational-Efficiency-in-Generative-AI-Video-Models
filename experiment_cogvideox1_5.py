@@ -27,7 +27,7 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 5
-NUM_FRAMES = 16
+NUM_FRAMES = 81
 HEIGHT = 768
 WIDTH = 1360
 NUM_INFERENCE_STEPS = 50
@@ -323,7 +323,7 @@ def load_model(model_name):
         
         pipeline = CogVideoXPipeline.from_pretrained(
             model_name,
-            torch_dtype=torch.float16
+            torch_dtype=torch.bfloat16
         )
         if hasattr(pipeline, "enable_sequential_cpu_offload"):
             pipeline.enable_sequential_cpu_offload()
