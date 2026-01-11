@@ -11,6 +11,7 @@ from diffusers.utils import export_to_video
 import warnings
 import json
 from datetime import datetime
+import numpy as np
 
 warnings.filterwarnings('ignore')
 
@@ -248,7 +249,6 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     peak_memory_gb = peak_memory_bytes / (1024 ** 3)
     
     # Move video frames to CPU and convert to uint8 to free GPU memory before export
-    import numpy as np
     if isinstance(video, torch.Tensor):
         video = video.cpu().numpy()
     
@@ -300,7 +300,18 @@ def load_model(model_name):
             model_name,
             torch_dtype=torch.float16
         )
-        pipeline = pipeline.to("cuda")
+        if hasattr(pipeline, "enable_sequential_cpu_offload"):
+            pipeline.enable_sequential_cpu_offload()
+        elif hasattr(pipeline, "enable_model_cpu_offload"):
+            pipeline.enable_model_cpu_offload()
+        else:
+            pipeline = pipeline.to("cuda")
+
+        if hasattr(pipeline, "enable_attention_slicing"):
+            pipeline.enable_attention_slicing()
+
+        if hasattr(pipeline, "vae") and hasattr(pipeline.vae, "enable_tiling"):
+            pipeline.vae.enable_tiling()
         
         print("✓ Model loaded successfully\n")
         return pipeline
@@ -431,8 +442,12 @@ def run_experiments():
                             # Reduce steps and retry
                             print("\n⚠ Memory error detected. Reducing steps to 30 and retrying...")
                             num_steps = 30
+                            cleanup_model(pipeline)
                             torch.cuda.empty_cache()
+                            if hasattr(torch.cuda, "ipc_collect"):
+                                torch.cuda.ipc_collect()
                             gc.collect()
+                            pipeline = load_model(model_name)
                             
                             try:
                                 result = measure_inference(
