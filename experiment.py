@@ -1,12 +1,15 @@
+import os
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+
 import torch
 import time
 import gc
 import pandas as pd
 from scipy import stats
 from diffusers import CogVideoXPipeline
+from diffusers.utils import export_to_video
 import warnings
 import json
-import os
 from datetime import datetime
 
 warnings.filterwarnings('ignore')
@@ -24,11 +27,12 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 5
-NUM_FRAMES = 16
-HEIGHT = 480
-WIDTH = 720
+NUM_FRAMES = 24
+HEIGHT = 1080
+WIDTH = 1920
 NUM_INFERENCE_STEPS = 50
 POWER_CONSUMPTION_WATTS = 200
+GPU_HOURLY_COST = 1.18  # USD/hour - A100 High-RAM (11.77 compute units @ $0.10)
 
 # File paths for checkpointing and logging
 CHECKPOINT_FILE = "checkpoint.json"
@@ -36,6 +40,7 @@ PROGRESS_LOG_FILE = "progress_log.txt"
 RESULTS_CSV_FILE = "results.csv"
 SUMMARY_FILE = "summary.txt"
 ERROR_LOG_FILE = "errors.log"
+OUTPUT_VIDEO_DIR = "output_videos"
 
 # Global tracking variables
 results = []
@@ -88,8 +93,11 @@ def log_progress(model_name, run_number, prompt_index, inference_time, peak_memo
     # Format timestamp
     timestamp = datetime.now().strftime("%H:%M:%S")
     
+    # Calculate progress percentage
+    progress_pct = (videos_completed / total_videos) * 100
+    
     # Create log line
-    log_line = (f"[{timestamp}] Model: {model_name} | Run: {run_number}/{NUM_RUNS_PER_PROMPT} | "
+    log_line = (f"[{timestamp}] [{progress_pct:.1f}%] Model: {model_name} | Run: {run_number}/{NUM_RUNS_PER_PROMPT} | "
                 f"Prompt: {prompt_index}/{len(PROMPTS)} | Time: {inference_time:.2f}s | "
                 f"Memory: {peak_memory_gb:.2f}GB | Quality: {quality:.2f} | ETA: {eta_hours:.1f}h\n")
     
@@ -144,17 +152,26 @@ def print_periodic_summary():
         eta_hours = 0
         eta_minutes = 0
     
-    # Calculate success rate
+    # Calculate success rate and costs
     if os.path.exists(RESULTS_CSV_FILE):
         df = pd.read_csv(RESULTS_CSV_FILE)
-        success_count = len(df[df['inference_time_seconds'] > 0])
+        success_count = len(df[df['status'] == 'SUCCESS'])
         success_rate = (success_count / videos_completed * 100) if videos_completed > 0 else 0
         
-        # Find best model so far
-        if len(df) > 0:
-            df['cost_efficiency'] = 1 / (df['inference_time_seconds'] * df['peak_memory_gb'] * POWER_CONSUMPTION_WATTS)
-            best_model = df.groupby('model_name')['cost_efficiency'].mean().idxmax()
-            best_efficiency = df.groupby('model_name')['cost_efficiency'].mean().max()
+        # Calculate costs
+        successful_results = df[df['status'] == 'SUCCESS']
+        if len(successful_results) > 0:
+            total_cost = successful_results['compute_cost_usd'].sum()
+            avg_cost_per_video = total_cost / len(successful_results)
+        else:
+            total_cost = 0
+            avg_cost_per_video = 0
+        
+        # Find best model so far (filter out failed runs)
+        if len(successful_results) > 0:
+            successful_results['cost_efficiency'] = 1 / (successful_results['inference_time_seconds'] * successful_results['peak_memory_gb'] * POWER_CONSUMPTION_WATTS)
+            best_model = successful_results.groupby('model_name')['cost_efficiency'].mean().idxmax()
+            best_efficiency = successful_results.groupby('model_name')['cost_efficiency'].mean().max()
         else:
             best_model = "N/A"
             best_efficiency = 0
@@ -162,6 +179,8 @@ def print_periodic_summary():
         success_rate = 100
         best_model = "N/A"
         best_efficiency = 0
+        total_cost = 0
+        avg_cost_per_video = 0
     
     summary = f"""
 {'='*60}
@@ -171,6 +190,8 @@ Total videos completed: {videos_completed}/{total_videos}
 Time spent so far: {int(elapsed_hours)}h {int(elapsed_minutes)}m
 Estimated time remaining: {eta_hours}h {eta_minutes}m
 Success rate: {success_rate:.1f}%
+Total Compute Cost: ${total_cost:.2f}
+Avg Cost/Video: ${avg_cost_per_video:.4f}
 Best model so far: {best_model} (Cost-Efficiency: {best_efficiency:.6f})
 {'='*60}
 """
@@ -207,7 +228,7 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     
     with torch.no_grad():
         try:
-            _video = pipeline(
+            video = pipeline(
                 prompt=prompt,
                 num_frames=NUM_FRAMES,
                 height=HEIGHT,
@@ -218,12 +239,19 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             print(f"Error during inference: {e}")
             raise
     
-    end_time = time.time()
-    inference_time = end_time - start_time
+    elapsed = time.time() - start_time
+    inference_time = elapsed
+    compute_cost_usd = (elapsed / 3600) * GPU_HOURLY_COST
     
     # Measure peak GPU memory
     peak_memory_bytes = torch.cuda.max_memory_allocated()
     peak_memory_gb = peak_memory_bytes / (1024 ** 3)
+    
+    # Save video to output folder
+    model_short_name = model_name.split('/')[-1]
+    output_path = f"{OUTPUT_VIDEO_DIR}/{model_short_name}/prompt_{prompt_index}/run_{run_number}.mp4"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    export_to_video(video, output_path, fps=8)
     
     result = {
         'model_name': model_name,
@@ -232,6 +260,7 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
         'prompt_text': prompt,
         'inference_time_seconds': inference_time,
         'peak_memory_gb': peak_memory_gb,
+        'compute_cost_usd': compute_cost_usd,
         'status': 'SUCCESS'
     }
     
@@ -429,6 +458,7 @@ def run_experiments():
                                     'prompt_text': prompt,
                                     'inference_time_seconds': 0,
                                     'peak_memory_gb': 0,
+                                    'compute_cost_usd': 0,
                                     'status': 'FAILED'
                                 }
                                 append_to_csv(failed_result)
@@ -448,6 +478,7 @@ def run_experiments():
                                 'prompt_text': prompt,
                                 'inference_time_seconds': 0,
                                 'peak_memory_gb': 0,
+                                'compute_cost_usd': 0,
                                 'status': 'FAILED'
                             }
                             append_to_csv(failed_result)
@@ -468,6 +499,7 @@ def run_experiments():
                             'prompt_text': prompt,
                             'inference_time_seconds': 0,
                             'peak_memory_gb': 0,
+                            'compute_cost_usd': 0,
                             'status': 'FAILED'
                         }
                         append_to_csv(failed_result)
