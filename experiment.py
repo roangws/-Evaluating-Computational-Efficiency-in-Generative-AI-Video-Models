@@ -338,7 +338,9 @@ def load_model(model_name):
 
         if hasattr(pipeline, "vae"):
             if hasattr(pipeline.vae, "config"):
-                pipeline.vae.config.scaling_factor = 1.0
+                pipeline.vae.config.scaling_factor = 0.18215
+                if hasattr(pipeline.vae.config, "invert_scale_latents"):
+                    pipeline.vae.config.invert_scale_latents = False
             if hasattr(pipeline.vae, 'enable_tiling'):
                 pipeline.vae.enable_tiling()
         
