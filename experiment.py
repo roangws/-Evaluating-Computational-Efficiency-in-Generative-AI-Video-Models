@@ -5,6 +5,9 @@ import pandas as pd
 from scipy import stats
 from diffusers import CogVideoXPipeline
 import warnings
+import json
+import os
+from datetime import datetime
 
 warnings.filterwarnings('ignore')
 
@@ -27,8 +30,157 @@ WIDTH = 720
 NUM_INFERENCE_STEPS = 50
 POWER_CONSUMPTION_WATTS = 200
 
-# Results storage
+# File paths for checkpointing and logging
+CHECKPOINT_FILE = "checkpoint.json"
+PROGRESS_LOG_FILE = "progress_log.txt"
+RESULTS_CSV_FILE = "results.csv"
+SUMMARY_FILE = "summary.txt"
+ERROR_LOG_FILE = "errors.log"
+
+# Global tracking variables
 results = []
+total_videos = len(MODELS) * len(PROMPTS) * NUM_RUNS_PER_PROMPT
+videos_completed = 0
+experiment_start_time = None
+
+def save_checkpoint(model_name, model_idx, prompt_idx, run_number):
+    """
+    Save current progress to checkpoint file.
+    """
+    checkpoint_data = {
+        'current_model': model_name,
+        'model_idx': model_idx,
+        'prompt_idx': prompt_idx,
+        'run_number': run_number,
+        'videos_completed': videos_completed,
+        'timestamp': datetime.now().isoformat()
+    }
+    
+    with open(CHECKPOINT_FILE, 'w') as f:
+        json.dump(checkpoint_data, f, indent=2)
+
+def load_checkpoint():
+    """
+    Load checkpoint if exists, return None if not.
+    """
+    if os.path.exists(CHECKPOINT_FILE):
+        with open(CHECKPOINT_FILE, 'r') as f:
+            return json.load(f)
+    return None
+
+def log_progress(model_name, run_number, prompt_index, inference_time, peak_memory_gb, quality=0.0):
+    """
+    Append progress line to progress_log.txt after each video.
+    """
+    global videos_completed, experiment_start_time
+    
+    # Calculate ETA
+    elapsed_time = time.time() - experiment_start_time
+    videos_remaining = total_videos - videos_completed
+    
+    if videos_completed > 0:
+        avg_time_per_video = elapsed_time / videos_completed
+        eta_seconds = avg_time_per_video * videos_remaining
+        eta_hours = eta_seconds / 3600
+    else:
+        eta_hours = 0
+    
+    # Format timestamp
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    
+    # Create log line
+    log_line = (f"[{timestamp}] Model: {model_name} | Run: {run_number}/{NUM_RUNS_PER_PROMPT} | "
+                f"Prompt: {prompt_index}/{len(PROMPTS)} | Time: {inference_time:.2f}s | "
+                f"Memory: {peak_memory_gb:.2f}GB | Quality: {quality:.2f} | ETA: {eta_hours:.1f}h\n")
+    
+    # Append to progress log
+    with open(PROGRESS_LOG_FILE, 'a') as f:
+        f.write(log_line)
+    
+    print(log_line.strip())
+
+def log_error(error_message, model_name, run_number, prompt_index):
+    """
+    Log error to errors.log with timestamp.
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    error_entry = (f"[{timestamp}] Model: {model_name} | Run: {run_number} | "
+                   f"Prompt: {prompt_index} | Error: {error_message}\n")
+    
+    with open(ERROR_LOG_FILE, 'a') as f:
+        f.write(error_entry)
+    
+    print(f"✗ ERROR LOGGED: {error_message}")
+
+def append_to_csv(result):
+    """
+    Immediately append result to CSV file (real-time updates).
+    """
+    df = pd.DataFrame([result])
+    
+    # Check if file exists to determine if we need headers
+    file_exists = os.path.exists(RESULTS_CSV_FILE)
+    
+    # Append to CSV
+    df.to_csv(RESULTS_CSV_FILE, mode='a', header=not file_exists, index=False)
+
+def print_periodic_summary():
+    """
+    Print and save summary every 3 videos.
+    """
+    global videos_completed, experiment_start_time
+    
+    elapsed_time = time.time() - experiment_start_time
+    elapsed_hours = elapsed_time / 3600
+    elapsed_minutes = (elapsed_time % 3600) / 60
+    
+    # Calculate ETA
+    if videos_completed > 0:
+        avg_time_per_video = elapsed_time / videos_completed
+        eta_seconds = avg_time_per_video * (total_videos - videos_completed)
+        eta_hours = int(eta_seconds // 3600)
+        eta_minutes = int((eta_seconds % 3600) // 60)
+    else:
+        eta_hours = 0
+        eta_minutes = 0
+    
+    # Calculate success rate
+    if os.path.exists(RESULTS_CSV_FILE):
+        df = pd.read_csv(RESULTS_CSV_FILE)
+        success_count = len(df[df['inference_time_seconds'] > 0])
+        success_rate = (success_count / videos_completed * 100) if videos_completed > 0 else 0
+        
+        # Find best model so far
+        if len(df) > 0:
+            df['cost_efficiency'] = 1 / (df['inference_time_seconds'] * df['peak_memory_gb'] * POWER_CONSUMPTION_WATTS)
+            best_model = df.groupby('model_name')['cost_efficiency'].mean().idxmax()
+            best_efficiency = df.groupby('model_name')['cost_efficiency'].mean().max()
+        else:
+            best_model = "N/A"
+            best_efficiency = 0
+    else:
+        success_rate = 100
+        best_model = "N/A"
+        best_efficiency = 0
+    
+    summary = f"""
+{'='*60}
+PERIODIC SUMMARY (Every 3 videos)
+{'='*60}
+Total videos completed: {videos_completed}/{total_videos}
+Time spent so far: {int(elapsed_hours)}h {int(elapsed_minutes)}m
+Estimated time remaining: {eta_hours}h {eta_minutes}m
+Success rate: {success_rate:.1f}%
+Best model so far: {best_model} (Cost-Efficiency: {best_efficiency:.6f})
+{'='*60}
+"""
+    
+    print(summary)
+    
+    # Save to summary.txt
+    with open(SUMMARY_FILE, 'a') as f:
+        f.write(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]\n")
+        f.write(summary)
 
 def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, num_steps=50):
     """
@@ -79,7 +231,8 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
         'prompt_index': prompt_index,
         'prompt_text': prompt,
         'inference_time_seconds': inference_time,
-        'peak_memory_gb': peak_memory_gb
+        'peak_memory_gb': peak_memory_gb,
+        'status': 'SUCCESS'
     }
     
     print(f"✓ {model_name} | Prompt {prompt_index} | Run {run_number} | "
@@ -129,24 +282,58 @@ def cleanup_model(pipeline):
 
 def run_experiments():
     """
-    Run the complete benchmarking experiment for all models.
+    Run the complete benchmarking experiment for all models with checkpoint support.
     """
-    print("="*60)
-    print("COGVIDEOX COST-EFFICIENCY BENCHMARKING EXPERIMENT")
-    print("="*60)
-    print(f"Models to test: {len(MODELS)}")
-    print(f"Prompts per model: {len(PROMPTS)}")
-    print(f"Runs per prompt: {NUM_RUNS_PER_PROMPT}")
-    print(f"Total videos to generate: {len(MODELS) * len(PROMPTS) * NUM_RUNS_PER_PROMPT}")
-    print(f"Video settings: {NUM_FRAMES} frames, {HEIGHT}x{WIDTH}, {NUM_INFERENCE_STEPS} steps")
-    print("="*60)
+    global videos_completed, experiment_start_time, results
     
+    # Check for existing checkpoint
+    checkpoint = load_checkpoint()
+    
+    # Load existing results from CSV if resuming
+    if checkpoint and os.path.exists(RESULTS_CSV_FILE):
+        print("="*60)
+        print("RESUMING FROM CHECKPOINT")
+        print("="*60)
+        print(f"Last completed: Model {checkpoint['current_model']}")
+        print(f"Videos completed: {checkpoint['videos_completed']}/{total_videos}")
+        print(f"Resuming from video {checkpoint['videos_completed'] + 1}")
+        print("="*60)
+        
+        # Load existing results
+        df = pd.read_csv(RESULTS_CSV_FILE)
+        results = df.to_dict('records')
+        videos_completed = checkpoint['videos_completed']
+        
+        # Resume from checkpoint position
+        start_model_idx = checkpoint['model_idx']
+        start_prompt_idx = checkpoint['prompt_idx']
+        start_run = checkpoint['run_number'] + 1
+    else:
+        print("="*60)
+        print("COGVIDEOX COST-EFFICIENCY BENCHMARKING EXPERIMENT")
+        print("="*60)
+        print(f"Models to test: {len(MODELS)}")
+        print(f"Prompts per model: {len(PROMPTS)}")
+        print(f"Runs per prompt: {NUM_RUNS_PER_PROMPT}")
+        print(f"Total videos to generate: {total_videos}")
+        print(f"Video settings: {NUM_FRAMES} frames, {HEIGHT}x{WIDTH}, {NUM_INFERENCE_STEPS} steps")
+        print("="*60)
+        
+        start_model_idx = 0
+        start_prompt_idx = 0
+        start_run = 1
+    
+    # Start experiment timer
+    experiment_start_time = time.time()
+    
+    # Iterate through models
     for model_idx, model_name in enumerate(MODELS):
-        # Determine number of inference steps (reduce for 5B model if needed)
+        # Skip models already completed
+        if model_idx < start_model_idx:
+            continue
+        
+        # Determine number of inference steps
         num_steps = NUM_INFERENCE_STEPS
-        if "5b" in model_name.lower():
-            # Start with default, will reduce if memory error occurs
-            num_steps = NUM_INFERENCE_STEPS
         
         try:
             # Load model
@@ -154,11 +341,19 @@ def run_experiments():
             
             # Run experiments for each prompt
             for prompt_idx, prompt in enumerate(PROMPTS):
+                # Skip prompts already completed
+                if model_idx == start_model_idx and prompt_idx < start_prompt_idx:
+                    continue
+                
                 print(f"\nPrompt {prompt_idx + 1}/{len(PROMPTS)}: \"{prompt}\"")
                 print("-" * 60)
                 
-                for run in range(1, NUM_RUNS_PER_PROMPT + 1):
+                # Determine starting run number
+                run_start = start_run if (model_idx == start_model_idx and prompt_idx == start_prompt_idx) else 1
+                
+                for run in range(run_start, NUM_RUNS_PER_PROMPT + 1):
                     try:
+                        # Measure inference
                         result = measure_inference(
                             pipeline=pipeline,
                             prompt=prompt,
@@ -167,31 +362,126 @@ def run_experiments():
                             prompt_index=prompt_idx + 1,
                             num_steps=num_steps
                         )
+                        
+                        # Save result immediately
                         results.append(result)
+                        append_to_csv(result)
+                        
+                        # Update progress tracking
+                        videos_completed += 1
+                        
+                        # Log progress
+                        log_progress(model_name, run, prompt_idx + 1, 
+                                   result['inference_time_seconds'], 
+                                   result['peak_memory_gb'])
+                        
+                        # Save checkpoint after every video
+                        save_checkpoint(model_name, model_idx, prompt_idx, run)
+                        
+                        # Print periodic summary every 3 videos
+                        if videos_completed % 3 == 0:
+                            print_periodic_summary()
                         
                     except RuntimeError as e:
-                        if "out of memory" in str(e).lower() and "5b" in model_name.lower():
+                        if "out of memory" in str(e).lower():
+                            # Log error
+                            log_error(f"OOM Error: {str(e)}", model_name, run, prompt_idx + 1)
+                            
+                            # Reduce steps and retry
                             print("\n⚠ Memory error detected. Reducing steps to 30 and retrying...")
                             num_steps = 30
                             torch.cuda.empty_cache()
                             gc.collect()
                             
-                            result = measure_inference(
-                                pipeline=pipeline,
-                                prompt=prompt,
-                                model_name=model_name,
-                                run_number=run,
-                                prompt_index=prompt_idx + 1,
-                                num_steps=num_steps
-                            )
-                            results.append(result)
+                            try:
+                                result = measure_inference(
+                                    pipeline=pipeline,
+                                    prompt=prompt,
+                                    model_name=model_name,
+                                    run_number=run,
+                                    prompt_index=prompt_idx + 1,
+                                    num_steps=num_steps
+                                )
+                                
+                                # Save result
+                                results.append(result)
+                                append_to_csv(result)
+                                videos_completed += 1
+                                
+                                log_progress(model_name, run, prompt_idx + 1,
+                                           result['inference_time_seconds'],
+                                           result['peak_memory_gb'])
+                                
+                                save_checkpoint(model_name, model_idx, prompt_idx, run)
+                                
+                                if videos_completed % 3 == 0:
+                                    print_periodic_summary()
+                                    
+                            except Exception as retry_error:
+                                # Log failure and skip this video
+                                log_error(f"Retry failed: {str(retry_error)}", model_name, run, prompt_idx + 1)
+                                
+                                # Mark as FAILED in CSV
+                                failed_result = {
+                                    'model_name': model_name,
+                                    'run_number': run,
+                                    'prompt_index': prompt_idx + 1,
+                                    'prompt_text': prompt,
+                                    'inference_time_seconds': 0,
+                                    'peak_memory_gb': 0,
+                                    'status': 'FAILED'
+                                }
+                                append_to_csv(failed_result)
+                                videos_completed += 1
+                                save_checkpoint(model_name, model_idx, prompt_idx, run)
+                                
+                                print(f"✗ Skipping video {videos_completed}/{total_videos} due to error")
+                                continue
                         else:
-                            raise
+                            # Log other runtime errors and skip
+                            log_error(f"Runtime Error: {str(e)}", model_name, run, prompt_idx + 1)
+                            
+                            failed_result = {
+                                'model_name': model_name,
+                                'run_number': run,
+                                'prompt_index': prompt_idx + 1,
+                                'prompt_text': prompt,
+                                'inference_time_seconds': 0,
+                                'peak_memory_gb': 0,
+                                'status': 'FAILED'
+                            }
+                            append_to_csv(failed_result)
+                            videos_completed += 1
+                            save_checkpoint(model_name, model_idx, prompt_idx, run)
+                            
+                            print(f"✗ Skipping video {videos_completed}/{total_videos} due to error")
+                            continue
+                    
+                    except Exception as e:
+                        # Log general errors and skip
+                        log_error(f"General Error: {str(e)}", model_name, run, prompt_idx + 1)
+                        
+                        failed_result = {
+                            'model_name': model_name,
+                            'run_number': run,
+                            'prompt_index': prompt_idx + 1,
+                            'prompt_text': prompt,
+                            'inference_time_seconds': 0,
+                            'peak_memory_gb': 0,
+                            'status': 'FAILED'
+                        }
+                        append_to_csv(failed_result)
+                        videos_completed += 1
+                        save_checkpoint(model_name, model_idx, prompt_idx, run)
+                        
+                        print(f"✗ Skipping video {videos_completed}/{total_videos} due to error")
+                        continue
             
             # Clean up model before loading next one
             cleanup_model(pipeline)
             
         except Exception as e:
+            log_error(f"Model loading error: {str(e)}", model_name, 0, 0)
             print(f"\n✗ Error with model {model_name}: {e}")
             print("Continuing with next model...\n")
             continue
@@ -200,12 +490,19 @@ def calculate_statistics():
     """
     Calculate and display statistics for all models.
     """
-    df = pd.DataFrame(results)
+    # Load results from CSV (in case of resume)
+    if os.path.exists(RESULTS_CSV_FILE):
+        df = pd.read_csv(RESULTS_CSV_FILE)
+    else:
+        df = pd.DataFrame(results)
+        df.to_csv(RESULTS_CSV_FILE, index=False)
     
-    # Save raw results to CSV
-    df.to_csv('results.csv', index=False)
+    # Filter out failed videos for statistics
+    df_success = df[df['status'] == 'SUCCESS']
+    
     print("\n" + "="*60)
     print("✓ Results saved to results.csv")
+    print(f"Total videos: {len(df)} | Successful: {len(df_success)} | Failed: {len(df) - len(df_success)}")
     print("="*60)
     
     # Calculate statistics per model
@@ -215,8 +512,8 @@ def calculate_statistics():
     
     stats_data = []
     
-    for model_name in df['model_name'].unique():
-        model_df = df[df['model_name'] == model_name]
+    for model_name in df_success['model_name'].unique():
+        model_df = df_success[df_success['model_name'] == model_name]
         
         avg_time = model_df['inference_time_seconds'].mean()
         std_time = model_df['inference_time_seconds'].std()
@@ -247,7 +544,7 @@ def calculate_statistics():
     print(stats_df.to_string(index=False))
     
     # Perform t-test if we have data for both models
-    if len(df['model_name'].unique()) == 2:
+    if len(df_success['model_name'].unique()) == 2:
         print("\n" + "="*60)
         print("STATISTICAL COMPARISON (T-TEST)")
         print("="*60)
@@ -255,11 +552,11 @@ def calculate_statistics():
         model1_name = MODELS[0]
         model2_name = MODELS[1]
         
-        model1_times = df[df['model_name'] == model1_name]['inference_time_seconds']
-        model2_times = df[df['model_name'] == model2_name]['inference_time_seconds']
+        model1_times = df_success[df_success['model_name'] == model1_name]['inference_time_seconds']
+        model2_times = df_success[df_success['model_name'] == model2_name]['inference_time_seconds']
         
-        model1_memory = df[df['model_name'] == model1_name]['peak_memory_gb']
-        model2_memory = df[df['model_name'] == model2_name]['peak_memory_gb']
+        model1_memory = df_success[df_success['model_name'] == model1_name]['peak_memory_gb']
+        model2_memory = df_success[df_success['model_name'] == model2_name]['peak_memory_gb']
         
         # T-test for inference time
         t_stat_time, p_value_time = stats.ttest_ind(model1_times, model2_times)
