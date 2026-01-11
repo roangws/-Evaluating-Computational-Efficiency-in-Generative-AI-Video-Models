@@ -247,6 +247,18 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     peak_memory_bytes = torch.cuda.max_memory_allocated()
     peak_memory_gb = peak_memory_bytes / (1024 ** 3)
     
+    # Move video frames to CPU and convert to uint8 to free GPU memory before export
+    import numpy as np
+    if isinstance(video, torch.Tensor):
+        video = video.cpu().numpy()
+    
+    # Ensure proper dtype (uint8) for video export
+    if video.dtype != np.uint8:
+        video = (video * 255).clip(0, 255).astype(np.uint8)
+    
+    # Clear GPU memory immediately after moving frames to CPU
+    torch.cuda.empty_cache()
+    
     # Save video to output folder
     model_short_name = model_name.split('/')[-1]
     output_path = f"{OUTPUT_VIDEO_DIR}/{model_short_name}/prompt_{prompt_index}/run_{run_number}.mp4"
