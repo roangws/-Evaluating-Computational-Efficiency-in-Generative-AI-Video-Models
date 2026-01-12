@@ -42,9 +42,9 @@ NUM_FRAMES_DEFAULT = 49
 HEIGHT_DEFAULT = 480
 WIDTH_DEFAULT = 720
 NUM_INFERENCE_STEPS = 50
-GUIDANCE_SCALE = 6.0
-SEED = 42
-NEGATIVE_PROMPT = "blurry, noisy, flickering, color artifacts, distorted, jpeg artifacts"
+GUIDANCE_SCALE = 7.5
+BASE_SEED = 42
+NEGATIVE_PROMPT = "blurry, noisy, color artifacts"
 POWER_CONSUMPTION_WATTS = 200
 GPU_HOURLY_COST = 1.18
 
@@ -265,7 +265,8 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             torch.cuda.reset_peak_memory_stats()
             gc.collect()
             
-            generator = torch.Generator(device="cuda").manual_seed(SEED)
+            derived_seed = BASE_SEED + (run_number * 100) + prompt_index
+            generator = torch.Generator(device="cuda").manual_seed(derived_seed)
             
             video = pipeline(
                 prompt=prompt,
@@ -318,11 +319,11 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     if isinstance(video, list):
         filtered_frames = []
         for frame in video:
-            filtered = cv2.medianBlur(frame, ksize=5)
+            filtered = cv2.medianBlur(frame, ksize=3)
             filtered_frames.append(filtered)
         video = filtered_frames
     else:
-        video = cv2.medianBlur(video, ksize=5)
+        video = cv2.medianBlur(video, ksize=3)
     
     torch.cuda.empty_cache()
     
