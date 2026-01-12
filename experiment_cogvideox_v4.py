@@ -355,10 +355,10 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     # Try inverting the colors manually
-    if isinstance(video, list):
-        video = [255 - frame for frame in video]
-    else:
-        video = 255 - video
+    #if isinstance(video, list):
+    #    video = [255 - frame for frame in video]
+    #else:
+    #    video = 255 - video
     
     try:
         export_to_video(video, output_path, fps=8, video_codec='libx264', pix_fmt='yuv420p')
@@ -405,6 +405,8 @@ def load_model(model_name):
             pipeline.enable_attention_slicing()
 
         if hasattr(pipeline, "vae"):
+            if hasattr(pipeline.vae, "config"):
+                pipeline.vae.config.force_upcast = True
             if hasattr(pipeline.vae, 'enable_tiling'):
                 pipeline.vae.enable_tiling()
         
