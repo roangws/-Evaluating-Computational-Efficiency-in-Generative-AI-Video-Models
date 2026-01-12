@@ -42,6 +42,9 @@ NUM_FRAMES_DEFAULT = 49
 HEIGHT_DEFAULT = 480
 WIDTH_DEFAULT = 720
 NUM_INFERENCE_STEPS = 50
+GUIDANCE_SCALE = 6.0
+SEED = 42
+NEGATIVE_PROMPT = "blurry, noisy, flickering, color artifacts, distorted, jpeg artifacts"
 POWER_CONSUMPTION_WATTS = 200
 GPU_HOURLY_COST = 1.18
 
@@ -261,12 +264,18 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             torch.cuda.empty_cache()
             torch.cuda.reset_peak_memory_stats()
             gc.collect()
+            
+            generator = torch.Generator(device="cuda").manual_seed(SEED)
+            
             video = pipeline(
                 prompt=prompt,
                 num_frames=num_frames,
                 height=height,
                 width=width,
                 num_inference_steps=num_steps,
+                guidance_scale=GUIDANCE_SCALE,
+                negative_prompt=NEGATIVE_PROMPT,
+                generator=generator,
             ).frames[0]
         except Exception as e:
             print(f"Error during inference: {e}")
