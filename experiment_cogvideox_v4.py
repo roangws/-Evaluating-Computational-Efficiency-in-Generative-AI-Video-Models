@@ -309,11 +309,11 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     if isinstance(video, list):
         smoothed_frames = []
         for frame in video:
-            smoothed = cv2.bilateralFilter(frame, d=5, sigmaColor=20, sigmaSpace=20)
+            smoothed = cv2.bilateralFilter(frame, d=7, sigmaColor=22, sigmaSpace=22)
             smoothed_frames.append(smoothed)
         video = smoothed_frames
     else:
-        video = cv2.bilateralFilter(video, d=5, sigmaColor=20, sigmaSpace=20)
+        video = cv2.bilateralFilter(video, d=7, sigmaColor=22, sigmaSpace=22)
     
     torch.cuda.empty_cache()
     
