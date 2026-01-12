@@ -305,15 +305,15 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             else:
                 video = video.clip(0, 255).astype(np.uint8)
     
-    # Post-process: Apply bilateral filter to reduce CogVideoX chromatic aberration
+    # Apply median filter to remove magenta/cyan impulse artifacts
     if isinstance(video, list):
-        smoothed_frames = []
+        filtered_frames = []
         for frame in video:
-            smoothed = cv2.bilateralFilter(frame, d=7, sigmaColor=22, sigmaSpace=22)
-            smoothed_frames.append(smoothed)
-        video = smoothed_frames
+            filtered = cv2.medianBlur(frame, ksize=5)
+            filtered_frames.append(filtered)
+        video = filtered_frames
     else:
-        video = cv2.bilateralFilter(video, d=7, sigmaColor=22, sigmaSpace=22)
+        video = cv2.medianBlur(video, ksize=5)
     
     torch.cuda.empty_cache()
     
