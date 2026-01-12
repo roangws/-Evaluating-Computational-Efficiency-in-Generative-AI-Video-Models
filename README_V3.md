@@ -32,7 +32,7 @@ Higher quality + lower cost = better efficiency
 
 Install all dependencies:
 ```bash
-pip install -r requirements_v3.txt
+pip install -r requirements.txt
 ```
 
 ## Run Experiment
