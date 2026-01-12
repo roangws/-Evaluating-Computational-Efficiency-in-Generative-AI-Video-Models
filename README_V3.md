@@ -30,17 +30,7 @@ Higher quality + lower cost = better efficiency
 
 ## Setup
 
-### Quick Install
-```bash
-pip install torchmetrics
-```
-
-### Full Install
-```bash
-bash setup_v3.sh
-```
-
-Or manually:
+Install all dependencies:
 ```bash
 pip install -r requirements_v3.txt
 ```
