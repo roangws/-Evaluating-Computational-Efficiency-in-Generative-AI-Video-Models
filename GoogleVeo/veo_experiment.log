@@ -1,0 +1,297 @@
+[2026-01-13 15:15:49] [INFO] ✓ GEMINI_API_KEY found, ready to call Gemini API
+[2026-01-13 15:15:49] [INFO] Initializing CLIP metric for quality evaluation...
+[2026-01-13 15:15:49] [WARNING] Warning: Failed to initialize CLIP metric: `clip_score` metric requires `transformers` package be installed. Either install with `pip install transformers>=4.10.0` or `pip install torchmetrics[multimodal]`.
+[2026-01-13 15:15:49] [INFO] Continuing without CLIP score evaluation...
+[2026-01-13 15:15:49] [INFO] ============================================================
+[2026-01-13 15:15:49] [INFO] GOOGLE VEO 3.1 VIDEO GENERATION BENCHMARK
+[2026-01-13 15:15:49] [INFO] ============================================================
+[2026-01-13 15:15:49] [INFO] Model: veo-3.1-generate-preview
+[2026-01-13 15:15:49] [INFO] API: Gemini API
+[2026-01-13 15:15:49] [INFO] Prompts: 3
+[2026-01-13 15:15:49] [INFO] Runs per prompt: 3
+[2026-01-13 15:15:49] [INFO] Total videos to generate: 9
+[2026-01-13 15:15:49] [INFO] Target video duration: 5 seconds
+[2026-01-13 15:15:49] [INFO] ============================================================
+[2026-01-13 15:15:49] [INFO] 
+Prompt 1/3: "A person walking in a park on a sunny day"
+[2026-01-13 15:15:49] [INFO] ------------------------------------------------------------
+[2026-01-13 15:15:49] [INFO] Starting video generation - Prompt 1, Run 1
+[2026-01-13 15:15:49] [INFO] Prompt: 'A person walking in a park on a sunny day'
+[2026-01-13 15:15:49] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:15:49] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:15:50] [WARNING] API call attempt 1 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ', 'status': 'RESOURCE_EXHAUSTED'}}
+[2026-01-13 15:15:50] [ERROR] ✗ Video generation failed: API call failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ', 'status': 'RESOURCE_EXHAUSTED'}}
+[2026-01-13 15:15:50] [INFO] Progress: 1/9 (11.1%) | ETA: 0.1 minutes
+[2026-01-13 15:15:50] [ERROR] Quota exceeded - stopping experiment
+[2026-01-13 15:15:50] [INFO] Completed 1/9 videos before quota limit
+[2026-01-13 15:15:50] [INFO] ============================================================
+[2026-01-13 15:15:50] [INFO] EXPERIMENT COMPLETED
+[2026-01-13 15:15:50] [INFO] Total time: 0.0 minutes
+[2026-01-13 15:15:50] [INFO] Videos completed: 1/9
+[2026-01-13 15:15:50] [INFO] ============================================================
+[2026-01-13 15:15:50] [INFO] 
+============================================================
+[2026-01-13 15:15:50] [INFO] STATISTICAL ANALYSIS
+[2026-01-13 15:15:50] [INFO] ============================================================
+[2026-01-13 15:15:50] [INFO] Total videos: 1
+[2026-01-13 15:15:50] [INFO] Successful: 0
+[2026-01-13 15:15:50] [INFO] Failed: 1
+[2026-01-13 15:15:50] [WARNING] No successful videos to analyze
+[2026-01-13 15:23:39] [INFO] ✓ GEMINI_API_KEY found, ready to call Gemini API
+[2026-01-13 15:23:39] [INFO] Initializing CLIP metric for quality evaluation...
+[2026-01-13 15:23:39] [WARNING] Warning: Failed to initialize CLIP metric: `clip_score` metric requires `transformers` package be installed. Either install with `pip install transformers>=4.10.0` or `pip install torchmetrics[multimodal]`.
+[2026-01-13 15:23:39] [INFO] Continuing without CLIP score evaluation...
+[2026-01-13 15:23:39] [INFO] ============================================================
+[2026-01-13 15:23:39] [INFO] GOOGLE VEO 3.1 VIDEO GENERATION BENCHMARK
+[2026-01-13 15:23:39] [INFO] ============================================================
+[2026-01-13 15:23:39] [INFO] Model: veo-3.1-generate-preview
+[2026-01-13 15:23:39] [INFO] API: Gemini API
+[2026-01-13 15:23:39] [INFO] Prompts: 3
+[2026-01-13 15:23:39] [INFO] Runs per prompt: 3
+[2026-01-13 15:23:39] [INFO] Total videos to generate: 9
+[2026-01-13 15:23:39] [INFO] Target video duration: 5 seconds
+[2026-01-13 15:23:39] [INFO] ============================================================
+[2026-01-13 15:23:39] [INFO] 
+Prompt 1/3: "A person walking in a park on a sunny day"
+[2026-01-13 15:23:39] [INFO] ------------------------------------------------------------
+[2026-01-13 15:23:39] [INFO] Starting video generation - Prompt 1, Run 1
+[2026-01-13 15:23:39] [INFO] Prompt: 'A person walking in a park on a sunny day'
+[2026-01-13 15:23:39] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:23:39] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:23:39] [WARNING] API call attempt 1 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ', 'status': 'RESOURCE_EXHAUSTED'}}
+[2026-01-13 15:23:39] [ERROR] ✗ Video generation failed: API call failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. ', 'status': 'RESOURCE_EXHAUSTED'}}
+[2026-01-13 15:23:39] [INFO] Progress: 1/9 (11.1%) | ETA: 0.1 minutes
+[2026-01-13 15:23:39] [ERROR] Quota exceeded - stopping experiment
+[2026-01-13 15:23:39] [INFO] Completed 1/9 videos before quota limit
+[2026-01-13 15:23:39] [INFO] ============================================================
+[2026-01-13 15:23:39] [INFO] EXPERIMENT COMPLETED
+[2026-01-13 15:23:39] [INFO] Total time: 0.0 minutes
+[2026-01-13 15:23:39] [INFO] Videos completed: 1/9
+[2026-01-13 15:23:39] [INFO] ============================================================
+[2026-01-13 15:23:39] [INFO] 
+============================================================
+[2026-01-13 15:23:39] [INFO] STATISTICAL ANALYSIS
+[2026-01-13 15:23:39] [INFO] ============================================================
+[2026-01-13 15:23:39] [INFO] Total videos: 2
+[2026-01-13 15:23:39] [INFO] Successful: 0
+[2026-01-13 15:23:39] [INFO] Failed: 2
+[2026-01-13 15:23:39] [WARNING] No successful videos to analyze
+[2026-01-13 15:23:51] [INFO] ✓ GEMINI_API_KEY found, ready to call Gemini API
+[2026-01-13 15:23:51] [INFO] Initializing CLIP metric for quality evaluation...
+[2026-01-13 15:23:51] [WARNING] Warning: Failed to initialize CLIP metric: `clip_score` metric requires `transformers` package be installed. Either install with `pip install transformers>=4.10.0` or `pip install torchmetrics[multimodal]`.
+[2026-01-13 15:23:51] [INFO] Continuing without CLIP score evaluation...
+[2026-01-13 15:23:51] [INFO] ============================================================
+[2026-01-13 15:23:51] [INFO] GOOGLE VEO 3.1 VIDEO GENERATION BENCHMARK
+[2026-01-13 15:23:51] [INFO] ============================================================
+[2026-01-13 15:23:51] [INFO] Model: veo-3.1-generate-preview
+[2026-01-13 15:23:51] [INFO] API: Gemini API
+[2026-01-13 15:23:51] [INFO] Prompts: 3
+[2026-01-13 15:23:51] [INFO] Runs per prompt: 3
+[2026-01-13 15:23:51] [INFO] Total videos to generate: 9
+[2026-01-13 15:23:51] [INFO] Target video duration: 5 seconds
+[2026-01-13 15:23:51] [INFO] ============================================================
+[2026-01-13 15:23:51] [INFO] 
+Prompt 1/3: "A person walking in a park on a sunny day"
+[2026-01-13 15:23:51] [INFO] ------------------------------------------------------------
+[2026-01-13 15:23:51] [INFO] Starting video generation - Prompt 1, Run 1
+[2026-01-13 15:23:51] [INFO] Prompt: 'A person walking in a park on a sunny day'
+[2026-01-13 15:23:51] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:23:51] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:23:52] [INFO] Operation started: models/veo-3.1-generate-preview/operations/tcwb123wwdpe
+[2026-01-13 15:23:52] [INFO] Polling operation for completion...
+[2026-01-13 15:24:02] [INFO] Operation status: running
+[2026-01-13 15:24:13] [INFO] Operation status: running
+[2026-01-13 15:24:23] [INFO] Operation status: running
+[2026-01-13 15:24:33] [INFO] Operation status: running
+[2026-01-13 15:24:44] [INFO] Operation status: running
+[2026-01-13 15:24:54] [INFO] Operation status: done
+[2026-01-13 15:24:54] [INFO] Operation completed successfully
+[2026-01-13 15:24:54] [INFO] Downloading video to output_videos/veo_prompt_1/veo_prompt_1_run_1.mp4
+[2026-01-13 15:24:55] [INFO] Video saved to output_videos/veo_prompt_1/veo_prompt_1_run_1.mp4
+[2026-01-13 15:24:56] [INFO] Extracted 192 frames from video
+[2026-01-13 15:24:56] [INFO] ✓ Video generated successfully - Time: 64.41s, CLIP: 0.0, Consistency: 0.165
+[2026-01-13 15:24:56] [INFO] Progress: 1/9 (11.1%) | ETA: 8.7 minutes
+[2026-01-13 15:24:56] [INFO] Starting video generation - Prompt 1, Run 2
+[2026-01-13 15:24:56] [INFO] Prompt: 'A person walking in a park on a sunny day'
+[2026-01-13 15:24:56] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:24:56] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:24:57] [INFO] Operation started: models/veo-3.1-generate-preview/operations/d4j5jojijnqn
+[2026-01-13 15:24:57] [INFO] Polling operation for completion...
+[2026-01-13 15:25:07] [INFO] Operation status: running
+[2026-01-13 15:25:18] [INFO] Operation status: running
+[2026-01-13 15:25:28] [INFO] Operation status: running
+[2026-01-13 15:25:38] [INFO] Operation status: running
+[2026-01-13 15:25:49] [INFO] Operation status: running
+[2026-01-13 15:25:59] [INFO] Operation status: running
+[2026-01-13 15:26:09] [INFO] Operation status: done
+[2026-01-13 15:26:09] [INFO] Operation completed successfully
+[2026-01-13 15:26:09] [INFO] Downloading video to output_videos/veo_prompt_1/veo_prompt_1_run_2.mp4
+[2026-01-13 15:26:10] [INFO] Video saved to output_videos/veo_prompt_1/veo_prompt_1_run_2.mp4
+[2026-01-13 15:26:11] [INFO] Extracted 192 frames from video
+[2026-01-13 15:26:11] [INFO] ✓ Video generated successfully - Time: 74.46s, CLIP: 0.0, Consistency: 0.333
+[2026-01-13 15:26:11] [INFO] Progress: 2/9 (22.2%) | ETA: 8.2 minutes
+[2026-01-13 15:26:11] [INFO] Starting video generation - Prompt 1, Run 3
+[2026-01-13 15:26:11] [INFO] Prompt: 'A person walking in a park on a sunny day'
+[2026-01-13 15:26:11] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:26:11] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:26:12] [INFO] Operation started: models/veo-3.1-generate-preview/operations/eb7ivuwh6xgm
+[2026-01-13 15:26:12] [INFO] Polling operation for completion...
+[2026-01-13 15:26:22] [INFO] Operation status: running
+[2026-01-13 15:26:33] [INFO] Operation status: running
+[2026-01-13 15:26:43] [INFO] Operation status: running
+[2026-01-13 15:26:53] [INFO] Operation status: running
+[2026-01-13 15:27:04] [INFO] Operation status: running
+[2026-01-13 15:27:14] [INFO] Operation status: done
+[2026-01-13 15:27:14] [INFO] Operation completed successfully
+[2026-01-13 15:27:14] [INFO] Downloading video to output_videos/veo_prompt_1/veo_prompt_1_run_3.mp4
+[2026-01-13 15:27:15] [INFO] Video saved to output_videos/veo_prompt_1/veo_prompt_1_run_3.mp4
+[2026-01-13 15:27:16] [INFO] Extracted 192 frames from video
+[2026-01-13 15:27:16] [INFO] ✓ Video generated successfully - Time: 64.18s, CLIP: 0.0, Consistency: 0.199
+[2026-01-13 15:27:16] [INFO] Progress: 3/9 (33.3%) | ETA: 6.8 minutes
+[2026-01-13 15:27:16] [INFO] 
+Prompt 2/3: "A car driving on a highway with trees in background"
+[2026-01-13 15:27:16] [INFO] ------------------------------------------------------------
+[2026-01-13 15:27:16] [INFO] Starting video generation - Prompt 2, Run 1
+[2026-01-13 15:27:16] [INFO] Prompt: 'A car driving on a highway with trees in background'
+[2026-01-13 15:27:16] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:27:16] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:27:17] [INFO] Operation started: models/veo-3.1-generate-preview/operations/llh44p58s3el
+[2026-01-13 15:27:17] [INFO] Polling operation for completion...
+[2026-01-13 15:27:27] [INFO] Operation status: running
+[2026-01-13 15:27:38] [INFO] Operation status: running
+[2026-01-13 15:27:48] [INFO] Operation status: running
+[2026-01-13 15:27:58] [INFO] Operation status: running
+[2026-01-13 15:28:09] [INFO] Operation status: done
+[2026-01-13 15:28:09] [INFO] Operation completed successfully
+[2026-01-13 15:28:09] [INFO] Downloading video to output_videos/veo_prompt_2/veo_prompt_2_run_1.mp4
+[2026-01-13 15:28:10] [INFO] Video saved to output_videos/veo_prompt_2/veo_prompt_2_run_1.mp4
+[2026-01-13 15:28:10] [INFO] Extracted 192 frames from video
+[2026-01-13 15:28:11] [INFO] ✓ Video generated successfully - Time: 54.11s, CLIP: 0.0, Consistency: 0.152
+[2026-01-13 15:28:11] [INFO] Progress: 4/9 (44.4%) | ETA: 5.4 minutes
+[2026-01-13 15:28:11] [INFO] Starting video generation - Prompt 2, Run 2
+[2026-01-13 15:28:11] [INFO] Prompt: 'A car driving on a highway with trees in background'
+[2026-01-13 15:28:11] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:28:11] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:28:12] [INFO] Operation started: models/veo-3.1-generate-preview/operations/s7hwt1jaz65g
+[2026-01-13 15:28:12] [INFO] Polling operation for completion...
+[2026-01-13 15:28:22] [INFO] Operation status: running
+[2026-01-13 15:28:32] [INFO] Operation status: running
+[2026-01-13 15:28:43] [INFO] Operation status: running
+[2026-01-13 15:28:53] [INFO] Operation status: running
+[2026-01-13 15:29:03] [INFO] Operation status: done
+[2026-01-13 15:29:03] [INFO] Operation completed successfully
+[2026-01-13 15:29:03] [INFO] Downloading video to output_videos/veo_prompt_2/veo_prompt_2_run_2.mp4
+[2026-01-13 15:29:05] [INFO] Video saved to output_videos/veo_prompt_2/veo_prompt_2_run_2.mp4
+[2026-01-13 15:29:05] [INFO] Extracted 192 frames from video
+[2026-01-13 15:29:05] [INFO] ✓ Video generated successfully - Time: 53.96s, CLIP: 0.0, Consistency: 0.216
+[2026-01-13 15:29:05] [INFO] Progress: 5/9 (55.6%) | ETA: 4.2 minutes
+[2026-01-13 15:29:05] [INFO] Starting video generation - Prompt 2, Run 3
+[2026-01-13 15:29:05] [INFO] Prompt: 'A car driving on a highway with trees in background'
+[2026-01-13 15:29:05] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:29:05] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:29:06] [INFO] Operation started: models/veo-3.1-generate-preview/operations/qb122y1ome5t
+[2026-01-13 15:29:06] [INFO] Polling operation for completion...
+[2026-01-13 15:29:17] [INFO] Operation status: running
+[2026-01-13 15:29:27] [INFO] Operation status: running
+[2026-01-13 15:29:37] [INFO] Operation status: running
+[2026-01-13 15:29:48] [INFO] Operation status: running
+[2026-01-13 15:29:58] [INFO] Operation status: done
+[2026-01-13 15:29:58] [INFO] Operation completed successfully
+[2026-01-13 15:29:58] [INFO] Downloading video to output_videos/veo_prompt_2/veo_prompt_2_run_3.mp4
+[2026-01-13 15:29:59] [INFO] Video saved to output_videos/veo_prompt_2/veo_prompt_2_run_3.mp4
+[2026-01-13 15:29:59] [INFO] Extracted 192 frames from video
+[2026-01-13 15:30:00] [INFO] ✓ Video generated successfully - Time: 53.57s, CLIP: 0.0, Consistency: 0.148
+[2026-01-13 15:30:00] [INFO] Progress: 6/9 (66.7%) | ETA: 3.1 minutes
+[2026-01-13 15:30:00] [INFO] 
+Prompt 3/3: "A cat playing with a ball in a living room"
+[2026-01-13 15:30:00] [INFO] ------------------------------------------------------------
+[2026-01-13 15:30:00] [INFO] Starting video generation - Prompt 3, Run 1
+[2026-01-13 15:30:00] [INFO] Prompt: 'A cat playing with a ball in a living room'
+[2026-01-13 15:30:00] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:30:00] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:30:01] [INFO] Operation started: models/veo-3.1-generate-preview/operations/vbifoa5tpm1b
+[2026-01-13 15:30:01] [INFO] Polling operation for completion...
+[2026-01-13 15:30:11] [INFO] Operation status: running
+[2026-01-13 15:30:21] [INFO] Operation status: running
+[2026-01-13 15:30:31] [INFO] Operation status: running
+[2026-01-13 15:30:42] [INFO] Operation status: running
+[2026-01-13 15:30:52] [INFO] Operation status: done
+[2026-01-13 15:30:52] [INFO] Operation completed successfully
+[2026-01-13 15:30:52] [INFO] Downloading video to output_videos/veo_prompt_3/veo_prompt_3_run_1.mp4
+[2026-01-13 15:30:53] [INFO] Video saved to output_videos/veo_prompt_3/veo_prompt_3_run_1.mp4
+[2026-01-13 15:30:54] [INFO] Extracted 192 frames from video
+[2026-01-13 15:30:54] [INFO] ✓ Video generated successfully - Time: 53.85s, CLIP: 0.0, Consistency: 0.364
+[2026-01-13 15:30:54] [INFO] Progress: 7/9 (77.8%) | ETA: 2.0 minutes
+[2026-01-13 15:30:54] [INFO] Starting video generation - Prompt 3, Run 2
+[2026-01-13 15:30:54] [INFO] Prompt: 'A cat playing with a ball in a living room'
+[2026-01-13 15:30:54] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:30:54] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:30:55] [INFO] Operation started: models/veo-3.1-generate-preview/operations/mgtkn19slomc
+[2026-01-13 15:30:55] [INFO] Polling operation for completion...
+[2026-01-13 15:31:05] [INFO] Operation status: running
+[2026-01-13 15:31:16] [INFO] Operation status: running
+[2026-01-13 15:31:26] [INFO] Operation status: running
+[2026-01-13 15:31:37] [INFO] Operation status: running
+[2026-01-13 15:31:47] [INFO] Operation status: running
+[2026-01-13 15:31:57] [INFO] Operation status: done
+[2026-01-13 15:31:57] [INFO] Operation completed successfully
+[2026-01-13 15:31:57] [INFO] Downloading video to output_videos/veo_prompt_3/veo_prompt_3_run_2.mp4
+[2026-01-13 15:31:58] [INFO] Video saved to output_videos/veo_prompt_3/veo_prompt_3_run_2.mp4
+[2026-01-13 15:31:59] [INFO] Extracted 192 frames from video
+[2026-01-13 15:31:59] [INFO] ✓ Video generated successfully - Time: 64.35s, CLIP: 0.0, Consistency: 0.174
+[2026-01-13 15:31:59] [INFO] Progress: 8/9 (88.9%) | ETA: 1.0 minutes
+[2026-01-13 15:31:59] [INFO] Starting video generation - Prompt 3, Run 3
+[2026-01-13 15:31:59] [INFO] Prompt: 'A cat playing with a ball in a living room'
+[2026-01-13 15:31:59] [INFO] Calling Gemini API with model: veo-3.1-generate-preview
+[2026-01-13 15:31:59] [INFO] Calling generate_videos (attempt 1)
+[2026-01-13 15:32:00] [INFO] Operation started: models/veo-3.1-generate-preview/operations/xdmbnnm95juu
+[2026-01-13 15:32:00] [INFO] Polling operation for completion...
+[2026-01-13 15:32:10] [INFO] Operation status: running
+[2026-01-13 15:32:21] [INFO] Operation status: running
+[2026-01-13 15:32:31] [INFO] Operation status: running
+[2026-01-13 15:32:41] [INFO] Operation status: running
+[2026-01-13 15:32:52] [INFO] Operation status: done
+[2026-01-13 15:32:52] [INFO] Operation completed successfully
+[2026-01-13 15:32:52] [INFO] Downloading video to output_videos/veo_prompt_3/veo_prompt_3_run_3.mp4
+[2026-01-13 15:32:53] [INFO] Video saved to output_videos/veo_prompt_3/veo_prompt_3_run_3.mp4
+[2026-01-13 15:32:53] [INFO] Extracted 192 frames from video
+[2026-01-13 15:32:53] [INFO] ✓ Video generated successfully - Time: 53.59s, CLIP: 0.0, Consistency: 0.203
+[2026-01-13 15:32:53] [INFO] Progress: 9/9 (100.0%) | ETA: 0.0 minutes
+[2026-01-13 15:32:53] [INFO] ============================================================
+[2026-01-13 15:32:53] [INFO] EXPERIMENT COMPLETED
+[2026-01-13 15:32:53] [INFO] Total time: 9.0 minutes
+[2026-01-13 15:32:53] [INFO] Videos completed: 9/9
+[2026-01-13 15:32:53] [INFO] ============================================================
+[2026-01-13 15:32:53] [INFO] 
+============================================================
+[2026-01-13 15:32:53] [INFO] STATISTICAL ANALYSIS
+[2026-01-13 15:32:53] [INFO] ============================================================
+[2026-01-13 15:32:53] [INFO] Total videos: 11
+[2026-01-13 15:32:53] [INFO] Successful: 9
+[2026-01-13 15:32:53] [INFO] Failed: 2
+[2026-01-13 15:32:53] [INFO] 
+============================================================
+GOOGLE VEO 3.1 RESULTS SUMMARY
+============================================================
+Model: Google Veo 3.1 (via Vertex AI)
+Successful Videos: 9/11
+
+PERFORMANCE METRICS:
+  Inference Time: 59.61 ± 7.54 seconds
+  Peak Memory: 0.0 GB (Cloud-hosted)
+  
+QUALITY METRICS:
+  CLIP Score: 0.0 ± 0.0
+  Frame Consistency: 0.217 ± 0.078
+
+COST METRICS:
+  Total Cost: $6.75
+  Avg Cost/Video: $0.7500
+
+STATUS BREAKDOWN:
+  SUCCESS: 9
+  QUOTA_EXCEEDED: 2
+============================================================
+[2026-01-13 15:32:53] [INFO] 
+✓ Summary saved to summary_veo.txt
+[2026-01-13 15:32:53] [INFO] ✓ Results saved to results_veo.csv

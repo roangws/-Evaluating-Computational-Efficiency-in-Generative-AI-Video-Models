@@ -1,0 +1,210 @@
+
+[2026-01-13 02:35:00]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 3/45
+Time spent so far: 0h 32m
+Estimated time remaining: 7h 35m
+Success rate: 100.0%
+Total Compute Cost: $0.60
+Avg Cost/Video: $0.2010
+Best model so far: THUDM/CogVideoX-5b (Cost-Efficiency: 0.000001)
+============================================================
+
+[2026-01-13 03:06:24]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 6/45
+Time spent so far: 1h 3m
+Estimated time remaining: 6h 55m
+Success rate: 100.0%
+Total Compute Cost: $1.20
+Avg Cost/Video: $0.2005
+Best model so far: THUDM/CogVideoX-5b (Cost-Efficiency: 0.000001)
+============================================================
+
+[2026-01-13 03:37:49]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 9/45
+Time spent so far: 1h 35m
+Estimated time remaining: 6h 21m
+Success rate: 100.0%
+Total Compute Cost: $1.80
+Avg Cost/Video: $0.2004
+Best model so far: THUDM/CogVideoX-5b (Cost-Efficiency: 0.000001)
+============================================================
+
+[2026-01-13 04:09:15]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 12/45
+Time spent so far: 2h 6m
+Estimated time remaining: 5h 48m
+Success rate: 100.0%
+Total Compute Cost: $2.40
+Avg Cost/Video: $0.2003
+Best model so far: THUDM/CogVideoX-5b (Cost-Efficiency: 0.000001)
+============================================================
+
+[2026-01-13 04:40:42]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 15/45
+Time spent so far: 2h 38m
+Estimated time remaining: 5h 16m
+Success rate: 100.0%
+Total Compute Cost: $3.00
+Avg Cost/Video: $0.2003
+Best model so far: THUDM/CogVideoX-5b (Cost-Efficiency: 0.000001)
+============================================================
+
+[2026-01-13 04:55:38]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 18/45
+Time spent so far: 2h 53m
+Estimated time remaining: 4h 19m
+Success rate: 100.0%
+Total Compute Cost: $3.26
+Avg Cost/Video: $0.1810
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 05:09:26]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 21/45
+Time spent so far: 3h 6m
+Estimated time remaining: 3h 33m
+Success rate: 100.0%
+Total Compute Cost: $3.51
+Avg Cost/Video: $0.1672
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 05:23:15]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 24/45
+Time spent so far: 3h 20m
+Estimated time remaining: 2h 55m
+Success rate: 100.0%
+Total Compute Cost: $3.77
+Avg Cost/Video: $0.1569
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 05:37:03]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 27/45
+Time spent so far: 3h 34m
+Estimated time remaining: 2h 23m
+Success rate: 100.0%
+Total Compute Cost: $4.02
+Avg Cost/Video: $0.1489
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 05:50:50]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 30/45
+Time spent so far: 3h 48m
+Estimated time remaining: 1h 54m
+Success rate: 100.0%
+Total Compute Cost: $4.27
+Avg Cost/Video: $0.1424
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 07:23:00]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 33/45
+Time spent so far: 5h 20m
+Estimated time remaining: 1h 56m
+Success rate: 100.0%
+Total Compute Cost: $6.01
+Avg Cost/Video: $0.1820
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 08:53:43]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 36/45
+Time spent so far: 6h 51m
+Estimated time remaining: 1h 42m
+Success rate: 100.0%
+Total Compute Cost: $7.74
+Avg Cost/Video: $0.2149
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 10:24:23]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 39/45
+Time spent so far: 8h 21m
+Estimated time remaining: 1h 17m
+Success rate: 100.0%
+Total Compute Cost: $9.47
+Avg Cost/Video: $0.2428
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 11:55:07]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 42/45
+Time spent so far: 9h 52m
+Estimated time remaining: 0h 42m
+Success rate: 100.0%
+Total Compute Cost: $11.20
+Avg Cost/Video: $0.2667
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
+
+[2026-01-13 13:25:59]
+
+============================================================
+PERIODIC SUMMARY (Every 3 videos)
+============================================================
+Total videos completed: 45/45
+Time spent so far: 11h 23m
+Estimated time remaining: 0h 0m
+Success rate: 100.0%
+Total Compute Cost: $12.94
+Avg Cost/Video: $0.2875
+Best model so far: THUDM/CogVideoX-2b (Cost-Efficiency: 0.000002)
+============================================================
