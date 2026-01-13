@@ -12,14 +12,24 @@ import warnings
 import json
 from datetime import datetime
 import numpy as np
+import cv2
+from torchmetrics.multimodal.clip_score import CLIPScore
 
 warnings.filterwarnings('ignore')
 
 # Configuration
 MODELS = [
+    "THUDM/CogVideoX-5b",
     "THUDM/CogVideoX-2b",
-    "THUDM/CogVideoX-5b"
+    "THUDM/CogVideoX1.5-5B"
 ]
+
+# Model-specific video settings (frames, height, width)
+MODEL_CONFIGS = {
+    "THUDM/CogVideoX-5b": {"num_frames": 49, "height": 480, "width": 720},
+    "THUDM/CogVideoX-2b": {"num_frames": 49, "height": 480, "width": 720},
+    "THUDM/CogVideoX1.5-5B": {"num_frames": 81, "height": 768, "width": 1360},
+}
 
 PROMPTS = [
     "A person walking in a park on a sunny day",
@@ -28,12 +38,15 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 5
-NUM_FRAMES = 16
-HEIGHT = 768
-WIDTH = 1360
+NUM_FRAMES_DEFAULT = 49
+HEIGHT_DEFAULT = 480
+WIDTH_DEFAULT = 720
 NUM_INFERENCE_STEPS = 50
+GUIDANCE_SCALE = 6.5
+BASE_SEED = 42
+NEGATIVE_PROMPT = "blurry, noisy, color artifacts"
 POWER_CONSUMPTION_WATTS = 200
-GPU_HOURLY_COST = 1.18  # USD/hour - A100 High-RAM (11.77 compute units @ $0.10)
+GPU_HOURLY_COST = 1.18
 
 # File paths for checkpointing and logging
 CHECKPOINT_FILE = "checkpoint.json"
@@ -48,11 +61,64 @@ results = []
 total_videos = len(MODELS) * len(PROMPTS) * NUM_RUNS_PER_PROMPT
 videos_completed = 0
 experiment_start_time = None
+clip_metric = None
+
+def calculate_frame_consistency(frames):
+    """
+    Calculate frame consistency (motion smoothness) score.
+    Higher score = smoother motion, lower = jittery/flickering.
+    
+    Args:
+        frames: List of numpy arrays (video frames)
+    
+    Returns:
+        float: Consistency score between 0 and 1
+    """
+    if len(frames) < 2:
+        return 1.0
+    
+    frame_diffs = []
+    for i in range(len(frames) - 1):
+        diff = np.mean(np.abs(frames[i+1].astype(np.float32) - frames[i].astype(np.float32)))
+        frame_diffs.append(diff)
+    
+    std_diff = np.std(frame_diffs)
+    consistency = 1.0 / (1.0 + std_diff)
+    return float(consistency)
+
+def calculate_clip_score(frame, prompt_text):
+    """
+    Calculate CLIP score for text-video alignment.
+    
+    Args:
+        frame: numpy array (single video frame, HxWxC, uint8)
+        prompt_text: str (the text prompt)
+    
+    Returns:
+        float: CLIP score (0-100 scale)
+    """
+    global clip_metric
+    
+    if clip_metric is None:
+        return 0.0
+    
+    try:
+        if isinstance(frame, np.ndarray):
+            if frame.dtype != np.uint8:
+                frame = frame.astype(np.uint8)
+            frame_tensor = torch.from_numpy(frame).permute(2, 0, 1)
+        else:
+            frame_tensor = frame
+        
+        frame_tensor = frame_tensor.unsqueeze(0)
+        
+        score = clip_metric(frame_tensor, [prompt_text])
+        return float(score.detach().cpu().item())
+    except Exception as e:
+        print(f"Warning: CLIP score calculation failed: {e}")
+        return 0.0
 
 def save_checkpoint(model_name, model_idx, prompt_idx, run_number):
-    """
-    Save current progress to checkpoint file.
-    """
     checkpoint_data = {
         'current_model': model_name,
         'model_idx': model_idx,
@@ -66,21 +132,14 @@ def save_checkpoint(model_name, model_idx, prompt_idx, run_number):
         json.dump(checkpoint_data, f, indent=2)
 
 def load_checkpoint():
-    """
-    Load checkpoint if exists, return None if not.
-    """
     if os.path.exists(CHECKPOINT_FILE):
         with open(CHECKPOINT_FILE, 'r') as f:
             return json.load(f)
     return None
 
-def log_progress(model_name, run_number, prompt_index, inference_time, peak_memory_gb, quality=0.0):
-    """
-    Append progress line to progress_log.txt after each video.
-    """
+def log_progress(model_name, run_number, prompt_index, inference_time, peak_memory_gb, clip_score=0.0, frame_consistency=0.0):
     global videos_completed, experiment_start_time
     
-    # Calculate ETA
     elapsed_time = time.time() - experiment_start_time
     videos_remaining = total_videos - videos_completed
     
@@ -91,27 +150,20 @@ def log_progress(model_name, run_number, prompt_index, inference_time, peak_memo
     else:
         eta_hours = 0
     
-    # Format timestamp
     timestamp = datetime.now().strftime("%H:%M:%S")
     
-    # Calculate progress percentage
     progress_pct = (videos_completed / total_videos) * 100
     
-    # Create log line
     log_line = (f"[{timestamp}] [{progress_pct:.1f}%] Model: {model_name} | Run: {run_number}/{NUM_RUNS_PER_PROMPT} | "
                 f"Prompt: {prompt_index}/{len(PROMPTS)} | Time: {inference_time:.2f}s | "
-                f"Memory: {peak_memory_gb:.2f}GB | Quality: {quality:.2f} | ETA: {eta_hours:.1f}h\n")
+                f"Memory: {peak_memory_gb:.2f}GB | CLIP: {clip_score:.1f} | Consist: {frame_consistency:.3f} | ETA: {eta_hours:.1f}h\n")
     
-    # Append to progress log
     with open(PROGRESS_LOG_FILE, 'a') as f:
         f.write(log_line)
     
     print(log_line.strip())
 
 def log_error(error_message, model_name, run_number, prompt_index):
-    """
-    Log error to errors.log with timestamp.
-    """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     error_entry = (f"[{timestamp}] Model: {model_name} | Run: {run_number} | "
                    f"Prompt: {prompt_index} | Error: {error_message}\n")
@@ -122,28 +174,19 @@ def log_error(error_message, model_name, run_number, prompt_index):
     print(f"✗ ERROR LOGGED: {error_message}")
 
 def append_to_csv(result):
-    """
-    Immediately append result to CSV file (real-time updates).
-    """
     df = pd.DataFrame([result])
     
-    # Check if file exists to determine if we need headers
     file_exists = os.path.exists(RESULTS_CSV_FILE)
     
-    # Append to CSV
     df.to_csv(RESULTS_CSV_FILE, mode='a', header=not file_exists, index=False)
 
 def print_periodic_summary():
-    """
-    Print and save summary every 3 videos.
-    """
     global videos_completed, experiment_start_time
     
     elapsed_time = time.time() - experiment_start_time
     elapsed_hours = elapsed_time / 3600
     elapsed_minutes = (elapsed_time % 3600) / 60
     
-    # Calculate ETA
     if videos_completed > 0:
         avg_time_per_video = elapsed_time / videos_completed
         eta_seconds = avg_time_per_video * (total_videos - videos_completed)
@@ -153,13 +196,11 @@ def print_periodic_summary():
         eta_hours = 0
         eta_minutes = 0
     
-    # Calculate success rate and costs
     if os.path.exists(RESULTS_CSV_FILE):
         df = pd.read_csv(RESULTS_CSV_FILE)
         success_count = len(df[df['status'] == 'SUCCESS'])
         success_rate = (success_count / videos_completed * 100) if videos_completed > 0 else 0
         
-        # Calculate costs
         successful_results = df[df['status'] == 'SUCCESS']
         if len(successful_results) > 0:
             total_cost = successful_results['compute_cost_usd'].sum()
@@ -168,7 +209,6 @@ def print_periodic_summary():
             total_cost = 0
             avg_cost_per_video = 0
         
-        # Find best model so far (filter out failed runs)
         if len(successful_results) > 0:
             successful_results['cost_efficiency'] = 1 / (successful_results['inference_time_seconds'] * successful_results['peak_memory_gb'] * POWER_CONSUMPTION_WATTS)
             best_model = successful_results.groupby('model_name')['cost_efficiency'].mean().idxmax()
@@ -199,32 +239,24 @@ Best model so far: {best_model} (Cost-Efficiency: {best_efficiency:.6f})
     
     print(summary)
     
-    # Save to summary.txt
     with open(SUMMARY_FILE, 'a') as f:
         f.write(f"\n[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]\n")
         f.write(summary)
 
 def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, num_steps=50):
-    """
-    Measure inference time and peak GPU memory for a single video generation.
+    model_config = MODEL_CONFIGS.get(model_name, {
+        "num_frames": NUM_FRAMES_DEFAULT,
+        "height": HEIGHT_DEFAULT,
+        "width": WIDTH_DEFAULT
+    })
+    num_frames = model_config["num_frames"]
+    height = model_config["height"]
+    width = model_config["width"]
     
-    Args:
-        pipeline: The loaded CogVideoX pipeline
-        prompt: Text prompt for video generation
-        model_name: Name of the model being tested
-        run_number: Current run number (1-5)
-        prompt_index: Index of the prompt (1-3)
-        num_steps: Number of diffusion steps
-    
-    Returns:
-        dict: Dictionary containing measurement results
-    """
-    # Clear GPU cache and reset memory stats
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
     gc.collect()
     
-    # Measure inference time
     start_time = time.time()
     
     with torch.no_grad():
@@ -232,12 +264,19 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             torch.cuda.empty_cache()
             torch.cuda.reset_peak_memory_stats()
             gc.collect()
+            
+            derived_seed = BASE_SEED + (run_number * 100) + prompt_index
+            generator = torch.Generator(device="cuda").manual_seed(derived_seed)
+            
             video = pipeline(
                 prompt=prompt,
-                num_frames=NUM_FRAMES,
-                height=HEIGHT,
-                width=WIDTH,
+                num_frames=num_frames,
+                height=height,
+                width=width,
                 num_inference_steps=num_steps,
+                guidance_scale=GUIDANCE_SCALE,
+                negative_prompt=NEGATIVE_PROMPT,
+                generator=generator,
             ).frames[0]
         except Exception as e:
             print(f"Error during inference: {e}")
@@ -247,11 +286,9 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
     inference_time = elapsed
     compute_cost_usd = (elapsed / 3600) * GPU_HOURLY_COST
     
-    # Measure peak GPU memory
     peak_memory_bytes = torch.cuda.max_memory_allocated()
     peak_memory_gb = peak_memory_bytes / (1024 ** 3)
     
-    # Move video frames to CPU and convert to uint8 to free GPU memory before export
     if isinstance(video, torch.Tensor):
         video = video.cpu().numpy()
 
@@ -272,20 +309,57 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             converted_frames.append(frame)
         video = converted_frames
     else:
-        # Ensure proper dtype (uint8) for video export
         if video.dtype != np.uint8:
             if video.max() <= 1.0:
                 video = (video * 255).clip(0, 255).astype(np.uint8)
             else:
                 video = video.clip(0, 255).astype(np.uint8)
     
-    # Clear GPU memory immediately after moving frames to CPU
+    # Apply Non-Local Means denoising to remove magenta/cyan color artifacts
+    if isinstance(video, list):
+        filtered_frames = []
+        for frame in video:
+            filtered = cv2.fastNlMeansDenoisingColored(frame, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
+            filtered_frames.append(filtered)
+        video = filtered_frames
+    else:
+        video = cv2.fastNlMeansDenoisingColored(video, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
+    
     torch.cuda.empty_cache()
     
-    # Save video to output folder
-    model_short_name = model_name.split('/')[-1]
+    # Calculate quality metrics (after inference timing)
+    if isinstance(video, list):
+        frames_for_quality = video
+    else:
+        frames_for_quality = [video[i] for i in range(video.shape[0])]
+    
+    # CLIP Score: use middle frame
+    middle_idx = len(frames_for_quality) // 2
+    middle_frame = frames_for_quality[middle_idx]
+    clip_score = calculate_clip_score(middle_frame, prompt)
+    
+    # Frame Consistency: use all frames
+    frame_consistency = calculate_frame_consistency(frames_for_quality)
+    
+    # Determine model short name for output path
+    if "1.5" in model_name:
+        model_short_name = "CogVideoX1.5-5B"
+    elif "5b" in model_name.lower():
+        model_short_name = "CogVideoX-5b"
+    elif "2b" in model_name.lower():
+        model_short_name = "CogVideoX-2b"
+    else:
+        model_short_name = "CogVideoX"
+    
     output_path = f"{OUTPUT_VIDEO_DIR}/{model_short_name}/prompt_{prompt_index}/run_{run_number}.mp4"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Try inverting the colors manually (worked, dont change)
+    if isinstance(video, list):
+        video = [255 - frame for frame in video]
+    else:
+        video = 255 - video
+    
     try:
         export_to_video(video, output_path, fps=8, video_codec='libx264', pix_fmt='yuv420p')
     except TypeError:
@@ -299,24 +373,18 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
         'inference_time_seconds': inference_time,
         'peak_memory_gb': peak_memory_gb,
         'compute_cost_usd': compute_cost_usd,
+        'clip_score': clip_score,
+        'frame_consistency': frame_consistency,
         'status': 'SUCCESS'
     }
     
     print(f"✓ {model_name} | Prompt {prompt_index} | Run {run_number} | "
-          f"Time: {inference_time:.2f}s | Memory: {peak_memory_gb:.2f}GB")
+          f"Time: {inference_time:.2f}s | Memory: {peak_memory_gb:.2f}GB | "
+          f"CLIP: {clip_score:.1f} | Consistency: {frame_consistency:.3f}")
     
     return result
 
 def load_model(model_name):
-    """
-    Load a CogVideoX model with error handling.
-    
-    Args:
-        model_name: HuggingFace model identifier
-    
-    Returns:
-        CogVideoXPipeline: Loaded pipeline
-    """
     try:
         print(f"\n{'='*60}")
         print(f"Loading model: {model_name}")
@@ -324,7 +392,7 @@ def load_model(model_name):
         
         pipeline = CogVideoXPipeline.from_pretrained(
             model_name,
-            torch_dtype=torch.float16
+            torch_dtype=torch.bfloat16
         )
         if hasattr(pipeline, "enable_sequential_cpu_offload"):
             pipeline.enable_sequential_cpu_offload()
@@ -337,10 +405,6 @@ def load_model(model_name):
             pipeline.enable_attention_slicing()
 
         if hasattr(pipeline, "vae"):
-            if hasattr(pipeline.vae, "config"):
-                pipeline.vae.config.scaling_factor = 0.18215
-                if hasattr(pipeline.vae.config, "invert_scale_latents"):
-                    pipeline.vae.config.invert_scale_latents = False
             if hasattr(pipeline.vae, 'enable_tiling'):
                 pipeline.vae.enable_tiling()
         
@@ -352,27 +416,16 @@ def load_model(model_name):
         raise
 
 def cleanup_model(pipeline):
-    """
-    Clean up model from memory and GPU.
-    
-    Args:
-        pipeline: The pipeline to clean up
-    """
     del pipeline
     torch.cuda.empty_cache()
     gc.collect()
     print("\n✓ Model cleaned up from memory\n")
 
 def run_experiments():
-    """
-    Run the complete benchmarking experiment for all models with checkpoint support.
-    """
     global videos_completed, experiment_start_time, results
     
-    # Check for existing checkpoint
     checkpoint = load_checkpoint()
     
-    # Load existing results from CSV if resuming
     if checkpoint and os.path.exists(RESULTS_CSV_FILE):
         print("="*60)
         print("RESUMING FROM CHECKPOINT")
@@ -382,12 +435,10 @@ def run_experiments():
         print(f"Resuming from video {checkpoint['videos_completed'] + 1}")
         print("="*60)
         
-        # Load existing results
         df = pd.read_csv(RESULTS_CSV_FILE)
         results = df.to_dict('records')
         videos_completed = checkpoint['videos_completed']
         
-        # Resume from checkpoint position
         start_model_idx = checkpoint['model_idx']
         start_prompt_idx = checkpoint['prompt_idx']
         start_run = checkpoint['run_number'] + 1
@@ -399,44 +450,36 @@ def run_experiments():
         print(f"Prompts per model: {len(PROMPTS)}")
         print(f"Runs per prompt: {NUM_RUNS_PER_PROMPT}")
         print(f"Total videos to generate: {total_videos}")
-        print(f"Video settings: {NUM_FRAMES} frames, {HEIGHT}x{WIDTH}, {NUM_INFERENCE_STEPS} steps")
+        print(f"Video settings: Model-specific resolution, {NUM_INFERENCE_STEPS} steps")
+        print("Quality metrics: CLIP Score + Frame Consistency enabled")
         print("="*60)
         
         start_model_idx = 0
         start_prompt_idx = 0
         start_run = 1
     
-    # Start experiment timer
     experiment_start_time = time.time()
     
-    # Iterate through models
     for model_idx, model_name in enumerate(MODELS):
-        # Skip models already completed
         if model_idx < start_model_idx:
             continue
         
-        # Determine number of inference steps
         num_steps = NUM_INFERENCE_STEPS
         
         try:
-            # Load model
             pipeline = load_model(model_name)
             
-            # Run experiments for each prompt
             for prompt_idx, prompt in enumerate(PROMPTS):
-                # Skip prompts already completed
                 if model_idx == start_model_idx and prompt_idx < start_prompt_idx:
                     continue
                 
                 print(f"\nPrompt {prompt_idx + 1}/{len(PROMPTS)}: \"{prompt}\"")
                 print("-" * 60)
                 
-                # Determine starting run number
                 run_start = start_run if (model_idx == start_model_idx and prompt_idx == start_prompt_idx) else 1
                 
                 for run in range(run_start, NUM_RUNS_PER_PROMPT + 1):
                     try:
-                        # Measure inference
                         result = measure_inference(
                             pipeline=pipeline,
                             prompt=prompt,
@@ -446,31 +489,26 @@ def run_experiments():
                             num_steps=num_steps
                         )
                         
-                        # Save result immediately
                         results.append(result)
                         append_to_csv(result)
                         
-                        # Update progress tracking
                         videos_completed += 1
                         
-                        # Log progress
                         log_progress(model_name, run, prompt_idx + 1, 
                                    result['inference_time_seconds'], 
-                                   result['peak_memory_gb'])
+                                   result['peak_memory_gb'],
+                                   result['clip_score'],
+                                   result['frame_consistency'])
                         
-                        # Save checkpoint after every video
                         save_checkpoint(model_name, model_idx, prompt_idx, run)
                         
-                        # Print periodic summary every 3 videos
                         if videos_completed % 3 == 0:
                             print_periodic_summary()
                         
                     except RuntimeError as e:
                         if "out of memory" in str(e).lower():
-                            # Log error
                             log_error(f"OOM Error: {str(e)}", model_name, run, prompt_idx + 1)
                             
-                            # Reduce steps and retry
                             print("\n⚠ Memory error detected. Reducing steps to 30 and retrying...")
                             num_steps = 30
                             cleanup_model(pipeline)
@@ -490,14 +528,15 @@ def run_experiments():
                                     num_steps=num_steps
                                 )
                                 
-                                # Save result
                                 results.append(result)
                                 append_to_csv(result)
                                 videos_completed += 1
                                 
                                 log_progress(model_name, run, prompt_idx + 1,
                                            result['inference_time_seconds'],
-                                           result['peak_memory_gb'])
+                                           result['peak_memory_gb'],
+                                           result['clip_score'],
+                                           result['frame_consistency'])
                                 
                                 save_checkpoint(model_name, model_idx, prompt_idx, run)
                                 
@@ -505,10 +544,8 @@ def run_experiments():
                                     print_periodic_summary()
                                     
                             except Exception as retry_error:
-                                # Log failure and skip this video
                                 log_error(f"Retry failed: {str(retry_error)}", model_name, run, prompt_idx + 1)
                                 
-                                # Mark as FAILED in CSV
                                 failed_result = {
                                     'model_name': model_name,
                                     'run_number': run,
@@ -517,6 +554,8 @@ def run_experiments():
                                     'inference_time_seconds': 0,
                                     'peak_memory_gb': 0,
                                     'compute_cost_usd': 0,
+                                    'clip_score': 0,
+                                    'frame_consistency': 0,
                                     'status': 'FAILED'
                                 }
                                 append_to_csv(failed_result)
@@ -526,7 +565,6 @@ def run_experiments():
                                 print(f"✗ Skipping video {videos_completed}/{total_videos} due to error")
                                 continue
                         else:
-                            # Log other runtime errors and skip
                             log_error(f"Runtime Error: {str(e)}", model_name, run, prompt_idx + 1)
                             
                             failed_result = {
@@ -537,6 +575,8 @@ def run_experiments():
                                 'inference_time_seconds': 0,
                                 'peak_memory_gb': 0,
                                 'compute_cost_usd': 0,
+                                'clip_score': 0,
+                                'frame_consistency': 0,
                                 'status': 'FAILED'
                             }
                             append_to_csv(failed_result)
@@ -547,7 +587,6 @@ def run_experiments():
                             continue
                     
                     except Exception as e:
-                        # Log general errors and skip
                         log_error(f"General Error: {str(e)}", model_name, run, prompt_idx + 1)
                         
                         failed_result = {
@@ -558,6 +597,8 @@ def run_experiments():
                             'inference_time_seconds': 0,
                             'peak_memory_gb': 0,
                             'compute_cost_usd': 0,
+                            'clip_score': 0,
+                            'frame_consistency': 0,
                             'status': 'FAILED'
                         }
                         append_to_csv(failed_result)
@@ -567,7 +608,6 @@ def run_experiments():
                         print(f"✗ Skipping video {videos_completed}/{total_videos} due to error")
                         continue
             
-            # Clean up model before loading next one
             cleanup_model(pipeline)
             
         except Exception as e:
@@ -577,17 +617,12 @@ def run_experiments():
             continue
 
 def calculate_statistics():
-    """
-    Calculate and display statistics for all models.
-    """
-    # Load results from CSV (in case of resume)
     if os.path.exists(RESULTS_CSV_FILE):
         df = pd.read_csv(RESULTS_CSV_FILE)
     else:
         df = pd.DataFrame(results)
         df.to_csv(RESULTS_CSV_FILE, index=False)
     
-    # Filter out failed videos for statistics
     df_success = df[df['status'] == 'SUCCESS']
     
     print("\n" + "="*60)
@@ -595,7 +630,6 @@ def calculate_statistics():
     print(f"Total videos: {len(df)} | Successful: {len(df_success)} | Failed: {len(df) - len(df_success)}")
     print("="*60)
     
-    # Calculate statistics per model
     print("\n" + "="*60)
     print("STATISTICAL ANALYSIS")
     print("="*60)
@@ -611,74 +645,88 @@ def calculate_statistics():
         avg_memory = model_df['peak_memory_gb'].mean()
         std_memory = model_df['peak_memory_gb'].std()
         
-        # Calculate cost-efficiency: 1 / (time × memory × power)
-        cost_efficiency = 1 / (avg_time * avg_memory * POWER_CONSUMPTION_WATTS)
+        avg_clip = model_df['clip_score'].mean()
+        std_clip = model_df['clip_score'].std()
+        
+        avg_consistency = model_df['frame_consistency'].mean()
+        std_consistency = model_df['frame_consistency'].std()
+        
+        avg_cost = model_df['compute_cost_usd'].mean()
+        
+        # New cost-efficiency formula: (CLIP × Consistency) / (Time × Cost)
+        # Higher quality + lower cost = better efficiency
+        if avg_time > 0 and avg_cost > 0:
+            cost_efficiency = (avg_clip * avg_consistency) / (avg_time * avg_cost)
+        else:
+            cost_efficiency = 0
         
         stats_data.append({
             'Model': model_name,
             'Avg Time (s)': f"{avg_time:.2f} ± {std_time:.2f}",
             'Avg Memory (GB)': f"{avg_memory:.2f} ± {std_memory:.2f}",
-            'Cost-Efficiency': f"{cost_efficiency:.6f}"
+            'CLIP Score': f"{avg_clip:.1f} ± {std_clip:.1f}",
+            'Frame Consist.': f"{avg_consistency:.3f} ± {std_consistency:.3f}",
+            'Cost-Efficiency': f"{cost_efficiency:.4f}"
         })
         
         print(f"\n{model_name}:")
         print(f"  Average Time: {avg_time:.2f} ± {std_time:.2f} seconds")
         print(f"  Average Memory: {avg_memory:.2f} ± {std_memory:.2f} GB")
-        print(f"  Cost-Efficiency: {cost_efficiency:.6f}")
+        print(f"  CLIP Score: {avg_clip:.1f} ± {std_clip:.1f}")
+        print(f"  Frame Consistency: {avg_consistency:.3f} ± {std_consistency:.3f}")
+        print(f"  Avg Cost/Video: ${avg_cost:.4f}")
+        print(f"  Cost-Efficiency (CLIP×Consist)/(Time×Cost): {cost_efficiency:.4f}")
     
-    # Create summary table
     print("\n" + "="*60)
     print("SUMMARY TABLE")
     print("="*60)
     stats_df = pd.DataFrame(stats_data)
     print(stats_df.to_string(index=False))
     
-    # Perform t-test if we have data for both models
-    if len(df_success['model_name'].unique()) == 2:
+    # Pairwise t-tests for all model combinations
+    unique_models = df_success['model_name'].unique()
+    if len(unique_models) >= 2:
         print("\n" + "="*60)
-        print("STATISTICAL COMPARISON (T-TEST)")
+        print("STATISTICAL COMPARISON (PAIRWISE T-TESTS)")
         print("="*60)
         
-        model1_name = MODELS[0]
-        model2_name = MODELS[1]
+        from itertools import combinations
         
-        model1_times = df_success[df_success['model_name'] == model1_name]['inference_time_seconds']
-        model2_times = df_success[df_success['model_name'] == model2_name]['inference_time_seconds']
+        for model1_name, model2_name in combinations(unique_models, 2):
+            print(f"\n--- {model1_name} vs {model2_name} ---")
+            
+            model1_data = df_success[df_success['model_name'] == model1_name]
+            model2_data = df_success[df_success['model_name'] == model2_name]
+            
+            # Inference Time
+            t_stat, p_val = stats.ttest_ind(model1_data['inference_time_seconds'], model2_data['inference_time_seconds'])
+            sig = "*" if p_val < 0.05 else ""
+            print(f"  Inference Time: t={t_stat:.3f}, p={p_val:.4f} {sig}")
+            
+            # Memory
+            t_stat, p_val = stats.ttest_ind(model1_data['peak_memory_gb'], model2_data['peak_memory_gb'])
+            sig = "*" if p_val < 0.05 else ""
+            print(f"  Memory Usage: t={t_stat:.3f}, p={p_val:.4f} {sig}")
+            
+            # CLIP Score
+            t_stat, p_val = stats.ttest_ind(model1_data['clip_score'], model2_data['clip_score'])
+            sig = "*" if p_val < 0.05 else ""
+            print(f"  CLIP Score: t={t_stat:.3f}, p={p_val:.4f} {sig}")
+            
+            # Frame Consistency
+            t_stat, p_val = stats.ttest_ind(model1_data['frame_consistency'], model2_data['frame_consistency'])
+            sig = "*" if p_val < 0.05 else ""
+            print(f"  Frame Consistency: t={t_stat:.3f}, p={p_val:.4f} {sig}")
         
-        model1_memory = df_success[df_success['model_name'] == model1_name]['peak_memory_gb']
-        model2_memory = df_success[df_success['model_name'] == model2_name]['peak_memory_gb']
-        
-        # T-test for inference time
-        t_stat_time, p_value_time = stats.ttest_ind(model1_times, model2_times)
-        print(f"\nInference Time Comparison:")
-        print(f"  t-statistic: {t_stat_time:.4f}")
-        print(f"  p-value: {p_value_time:.6f}")
-        
-        if p_value_time < 0.05:
-            print("  Result: Statistically significant difference (p < 0.05)")
-        else:
-            print("  Result: No statistically significant difference (p >= 0.05)")
-        
-        # T-test for memory usage
-        t_stat_memory, p_value_memory = stats.ttest_ind(model1_memory, model2_memory)
-        print("\nMemory Usage Comparison:")
-        print(f"  t-statistic: {t_stat_memory:.4f}")
-        print(f"  p-value: {p_value_memory:.6f}")
-        
-        if p_value_memory < 0.05:
-            print("  Result: Statistically significant difference (p < 0.05)")
-        else:
-            print("  Result: No statistically significant difference (p >= 0.05)")
+        print("\n  (* = statistically significant at p < 0.05)")
     
     print("\n" + "="*60)
     print("EXPERIMENT COMPLETED")
     print("="*60)
 
 def main():
-    """
-    Main entry point for the experiment.
-    """
-    # Check CUDA availability
+    global clip_metric
+    
     if not torch.cuda.is_available():
         print("ERROR: CUDA is not available. This experiment requires a GPU.")
         return
@@ -686,10 +734,19 @@ def main():
     print(f"Using GPU: {torch.cuda.get_device_name(0)}")
     print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / (1024**3):.2f} GB\n")
     
-    # Run experiments
+    # Initialize CLIP metric for quality evaluation
+    print("Initializing CLIP metric for quality evaluation...")
+    try:
+        clip_metric = CLIPScore(model_name_or_path="openai/clip-vit-base-patch32")
+        clip_metric = clip_metric.to("cpu")  # Keep on CPU to save GPU memory
+        print("✓ CLIP metric initialized successfully\n")
+    except Exception as e:
+        print(f"⚠ Warning: Failed to initialize CLIP metric: {e}")
+        print("Continuing without CLIP score evaluation...\n")
+        clip_metric = None
+    
     run_experiments()
     
-    # Calculate and display statistics
     if len(results) > 0:
         calculate_statistics()
     else:
