@@ -42,7 +42,7 @@ NUM_FRAMES_DEFAULT = 49
 HEIGHT_DEFAULT = 480
 WIDTH_DEFAULT = 720
 NUM_INFERENCE_STEPS = 50
-GUIDANCE_SCALE = 7.5
+GUIDANCE_SCALE = 6.5
 BASE_SEED = 42
 NEGATIVE_PROMPT = "blurry, noisy, color artifacts"
 POWER_CONSUMPTION_WATTS = 200
@@ -315,15 +315,15 @@ def measure_inference(pipeline, prompt, model_name, run_number, prompt_index, nu
             else:
                 video = video.clip(0, 255).astype(np.uint8)
     
-    # Apply median filter to remove magenta/cyan impulse artifacts
+    # Apply Non-Local Means denoising to remove magenta/cyan color artifacts
     if isinstance(video, list):
         filtered_frames = []
         for frame in video:
-            filtered = cv2.medianBlur(frame, ksize=3)
+            filtered = cv2.fastNlMeansDenoisingColored(frame, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
             filtered_frames.append(filtered)
         video = filtered_frames
     else:
-        video = cv2.medianBlur(video, ksize=3)
+        video = cv2.fastNlMeansDenoisingColored(video, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
     
     torch.cuda.empty_cache()
     
@@ -405,8 +405,6 @@ def load_model(model_name):
             pipeline.enable_attention_slicing()
 
         if hasattr(pipeline, "vae"):
-            if hasattr(pipeline.vae, "config"):
-                pipeline.vae.config.force_upcast = True
             if hasattr(pipeline.vae, 'enable_tiling'):
                 pipeline.vae.enable_tiling()
         
