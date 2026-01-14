@@ -218,12 +218,11 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                     frame = frame.clip(0, 255).astype(np.uint8)
             
             # Convert BGR to RGB if needed
-            if frame.shape[-1] == 3:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            #if frame.shape[-1] == 3:
+            #    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
-            # Fallback: invert if frame appears washed out/inverted
-            # Uncomment if color conversion alone doesn't fix it:
-            # frame = 255 - frame
+            # Invert pixel values to fix inverted colors from pipeline
+            frame = 255 - frame
 
             converted_frames.append(frame)
         video = converted_frames
