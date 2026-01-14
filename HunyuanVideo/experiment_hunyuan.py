@@ -11,6 +11,7 @@ import warnings
 import json
 from datetime import datetime
 import numpy as np
+import cv2
 from torchmetrics.multimodal.clip_score import CLIPScore
 
 warnings.filterwarnings('ignore')
@@ -215,6 +216,14 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                     frame = (frame * 255).clip(0, 255).astype(np.uint8)
                 else:
                     frame = frame.clip(0, 255).astype(np.uint8)
+            
+            # Convert BGR to RGB if needed
+            if frame.shape[-1] == 3:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            
+            # Fallback: invert if frame appears washed out/inverted
+            # Uncomment if color conversion alone doesn't fix it:
+            # frame = 255 - frame
 
             converted_frames.append(frame)
         video = converted_frames
