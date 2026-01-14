@@ -25,9 +25,9 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 3
-NUM_FRAMES = 121
+NUM_FRAMES = 77
 FPS = 24
-NUM_INFERENCE_STEPS = 30
+NUM_INFERENCE_STEPS = 50
 BASE_SEED = 1000
 GPU_HOURLY_COST = 7.52
 HEIGHT = 480
@@ -186,7 +186,6 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 height=HEIGHT,
                 width=WIDTH,
                 num_inference_steps=NUM_INFERENCE_STEPS,
-                guidance_scale=GUIDANCE_SCALE,
                 generator=generator,
             ).frames[0]
         except Exception as e:
@@ -295,6 +294,9 @@ def load_model():
         if hasattr(pipeline, "vae"):
             if hasattr(pipeline.vae, 'enable_tiling'):
                 pipeline.vae.enable_tiling()
+        
+        # Configure guider for v1.5 guidance control
+        pipeline.guider = pipeline.guider.new(guidance_scale=6.0)
         
         print("✓ Model loaded successfully with CPU offload and VAE tiling enabled\n")
         return pipeline
