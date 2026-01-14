@@ -5,7 +5,7 @@ import torch
 import time
 import gc
 import pandas as pd
-from diffusers import HunyuanVideoPipeline
+from diffusers import HunyuanVideo15Pipeline
 from diffusers.utils import export_to_video
 import warnings
 import json
@@ -285,7 +285,7 @@ def load_model():
         print(f"Loading model: {MODEL_ID}")
         print(f"{'='*60}")
         
-        pipeline = HunyuanVideoPipeline.from_pretrained(
+        pipeline = HunyuanVideo15Pipeline.from_pretrained(
             MODEL_ID,
             torch_dtype=torch.bfloat16
         )
