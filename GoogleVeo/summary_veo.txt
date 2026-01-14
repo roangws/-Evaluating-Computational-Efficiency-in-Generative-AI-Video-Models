@@ -3,15 +3,15 @@
 GOOGLE VEO 3.1 RESULTS SUMMARY
 ============================================================
 Model: Google Veo 3.1 (via Vertex AI)
-Successful Videos: 9/11
+Successful Videos: 9/9
 
 PERFORMANCE METRICS:
-  Inference Time: 59.61 ± 7.54 seconds
+  Inference Time: 61.73 ± 8.58 seconds
   Peak Memory: 0.0 GB (Cloud-hosted)
   
 QUALITY METRICS:
-  CLIP Score: 0.0 ± 0.0
-  Frame Consistency: 0.217 ± 0.078
+  CLIP Score: 28.3 ± 3.8
+  Frame Consistency: 0.262 ± 0.103
 
 COST METRICS:
   Total Cost: $6.75
@@ -19,5 +19,4 @@ COST METRICS:
 
 STATUS BREAKDOWN:
   SUCCESS: 9
-  QUOTA_EXCEEDED: 2
 ============================================================

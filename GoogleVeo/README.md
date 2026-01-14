@@ -14,24 +14,25 @@ This experiment evaluates Google Veo 3.1 video generation capabilities using the
 ## 📊 Key Results
 
 ### Performance Metrics
-- **Average Inference Time**: 59.61 ± 7.54 seconds per video
-- **Frame Consistency**: 0.217 ± 0.078 (motion smoothness)
+- **Average Inference Time**: 61.73 ± 8.58 seconds per video
+- **CLIP Score**: 28.3 ± 3.8 (text-video alignment, 0-100 scale)
+- **Frame Consistency**: 0.262 ± 0.103 (motion smoothness)
 - **Total Cost**: $6.75 ($0.75 per 5-second video)
 - **Model**: `veo-3.1-generate-preview` via Gemini API
 
 ### Detailed Results by Prompt
 
-| Prompt | Run | Time (s) | Consistency | Cost |
-|--------|-----|----------|-------------|------|
-| Person walking in park | 1 | 64.41 | 0.165 | $0.75 |
-| Person walking in park | 2 | 74.46 | 0.333 | $0.75 |
-| Person walking in park | 3 | 64.18 | 0.199 | $0.75 |
-| Car on highway | 1 | 54.11 | 0.152 | $0.75 |
-| Car on highway | 2 | 53.96 | 0.216 | $0.75 |
-| Car on highway | 3 | 53.57 | 0.148 | $0.75 |
-| Cat with ball | 1 | 53.85 | 0.364 | $0.75 |
-| Cat with ball | 2 | 64.35 | 0.174 | $0.75 |
-| Cat with ball | 3 | 53.59 | 0.203 | $0.75 |
+| Prompt | Run | Time (s) | CLIP Score | Consistency | Cost |
+|--------|-----|----------|------------|-------------|------|
+| Person walking in park | 1 | 74.29 | 26.08 | 0.409 | $0.75 |
+| Person walking in park | 2 | 54.15 | 29.75 | 0.188 | $0.75 |
+| Person walking in park | 3 | 64.15 | 30.12 | 0.202 | $0.75 |
+| Car on highway | 1 | 63.94 | 24.13 | 0.334 | $0.75 |
+| Car on highway | 2 | 74.29 | 22.97 | 0.343 | $0.75 |
+| Car on highway | 3 | 53.73 | 25.66 | 0.130 | $0.75 |
+| Cat with ball | 1 | 53.63 | 32.81 | 0.187 | $0.75 |
+| Cat with ball | 2 | 53.37 | 30.15 | 0.187 | $0.75 |
+| Cat with ball | 3 | 64.04 | 33.43 | 0.382 | $0.75 |
 
 ## 🎬 Generated Videos Showcase
 
@@ -46,21 +47,21 @@ Click on any image to view the full video file.
         <img src="output_frames/veo_prompt_1/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      Time: 64.41s | Consistency: 0.165
+      Time: 74.29s | CLIP: 26.08 | Consistency: 0.409
     </td>
     <td align="center">
       <a href="output_videos/veo_prompt_1/veo_prompt_1_run_2.mp4">
         <img src="output_frames/veo_prompt_1/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      Time: 74.46s | Consistency: 0.333
+      Time: 54.15s | CLIP: 29.75 | Consistency: 0.188
     </td>
     <td align="center">
       <a href="output_videos/veo_prompt_1/veo_prompt_1_run_3.mp4">
         <img src="output_frames/veo_prompt_1/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      Time: 64.18s | Consistency: 0.199
+      Time: 64.15s | CLIP: 30.12 | Consistency: 0.202
     </td>
   </tr>
 </table>
@@ -74,21 +75,21 @@ Click on any image to view the full video file.
         <img src="output_frames/veo_prompt_2/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      Time: 54.11s | Consistency: 0.152
+      Time: 63.94s | CLIP: 24.13 | Consistency: 0.334
     </td>
     <td align="center">
       <a href="output_videos/veo_prompt_2/veo_prompt_2_run_2.mp4">
         <img src="output_frames/veo_prompt_2/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      Time: 53.96s | Consistency: 0.216
+      Time: 74.29s | CLIP: 22.97 | Consistency: 0.343
     </td>
     <td align="center">
       <a href="output_videos/veo_prompt_2/veo_prompt_2_run_3.mp4">
         <img src="output_frames/veo_prompt_2/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      Time: 53.57s | Consistency: 0.148
+      Time: 53.73s | CLIP: 25.66 | Consistency: 0.130
     </td>
   </tr>
 </table>
@@ -102,21 +103,21 @@ Click on any image to view the full video file.
         <img src="output_frames/veo_prompt_3/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      Time: 53.85s | Consistency: 0.364
+      Time: 53.63s | CLIP: 32.81 | Consistency: 0.187
     </td>
     <td align="center">
       <a href="output_videos/veo_prompt_3/veo_prompt_3_run_2.mp4">
         <img src="output_frames/veo_prompt_3/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      Time: 64.35s | Consistency: 0.174
+      Time: 53.37s | CLIP: 30.15 | Consistency: 0.187
     </td>
     <td align="center">
       <a href="output_videos/veo_prompt_3/veo_prompt_3_run_3.mp4">
         <img src="output_frames/veo_prompt_3/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      Time: 53.59s | Consistency: 0.203
+      Time: 64.04s | CLIP: 33.43 | Consistency: 0.382
     </td>
   </tr>
 </table>

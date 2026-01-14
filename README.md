@@ -23,19 +23,17 @@ Provide data-driven insights for choosing between local and cloud-based AI video
 
 | Metric | CogVideoX-2b (Local) | CogVideoX-5b (Local) | Google Veo 3.1 (Cloud) |
 |--------|---------------------|---------------------|------------------------|
-| **Avg Time/Video** | 257.90s | 611.11s | 59.61s |
+| **Avg Time/Video** | 257.90s | 611.11s | 61.73s |
 | **Cost/Video** | $0.08 | $0.20 | $0.75 |
-| **CLIP Score** | 30.90 | 32.20 | N/A* |
-| **Frame Consistency** | 0.542 | 0.563 | 0.217 |
+| **CLIP Score** | 30.90 | 32.20 | 28.30 |
+| **Frame Consistency** | 0.542 | 0.563 | 0.262 |
 | **Hardware Required** | 12GB+ GPU | 12GB+ GPU | None (API) |
-
-*CLIP score not available for Veo due to transformers dependency
 
 ### 🏆 Winner by Category
 
 | Category | Winner | Reason |
 |----------|--------|--------|
-| **⚡ Fastest** | Google Veo 3.1 | 59.61s vs 257.90s (4.3× faster than fastest local) |
+| **⚡ Fastest** | Google Veo 3.1 | 61.73s vs 257.90s (4.2× faster than fastest local) |
 | **💰 Cheapest** | CogVideoX-2b | $0.08/video vs $0.75 (9.4× cheaper than cloud) |
 | **🎨 Best Quality** | CogVideoX-5b | CLIP 32.20, Consistency 0.563 |
 | **🚀 Easiest Setup** | Google Veo 3.1 | No GPU required, just API key |
@@ -103,21 +101,21 @@ Provide data-driven insights for choosing between local and cloud-based AI video
         <img src="GoogleVeo/output_frames/veo_prompt_1/run_1_middle_frame.jpg" width="200px"/>
       </a><br/>
       <b>Person in Park</b><br/>
-      Consistency: 0.165 | 64s
+      CLIP: 26.08 | Consistency: 0.409 | 74s
     </td>
     <td align="center">
       <a href="GoogleVeo/output_videos/veo_prompt_2/veo_prompt_2_run_1.mp4">
         <img src="GoogleVeo/output_frames/veo_prompt_2/run_1_middle_frame.jpg" width="200px"/>
       </a><br/>
       <b>Car on Highway</b><br/>
-      Consistency: 0.152 | 54s
+      CLIP: 24.13 | Consistency: 0.334 | 64s
     </td>
     <td align="center">
       <a href="GoogleVeo/output_videos/veo_prompt_3/veo_prompt_3_run_1.mp4">
         <img src="GoogleVeo/output_frames/veo_prompt_3/run_1_middle_frame.jpg" width="200px"/>
       </a><br/>
       <b>Cat with Ball</b><br/>
-      Consistency: 0.364 | 54s
+      CLIP: 32.81 | Consistency: 0.187 | 54s
     </td>
   </tr>
 </table>
@@ -199,8 +197,9 @@ Break-even point: ~100 videos
 
 | Metric | Value |
 |--------|-------|
-| Average Inference Time | 59.61 ± 7.54 seconds |
-| Frame Consistency | 0.217 ± 0.078 |
+| Average Inference Time | 61.73 ± 8.58 seconds |
+| CLIP Score | 28.30 ± 3.80 |
+| Frame Consistency | 0.262 ± 0.103 |
 | Cost per Video | $0.75 (5 seconds × $0.15/sec) |
 | Video Duration | 5 seconds at 8 FPS |
 
@@ -228,9 +227,8 @@ python experiment_veo.py
 ## 📧 Contact
 
 **Author**: Roan Guilherme Weigert Salgueiro  
-**Email**: [Your email]  
-**LinkedIn**: [Your LinkedIn]  
-**GitHub**: [Your GitHub]
+**LinkedIn**: [\[Your LinkedIn\]  ](https://www.linkedin.com/in/-roan/)
+**GitHub**: [\[Your GitHub\]](https://github.com/roangws/)
 
 ---
 

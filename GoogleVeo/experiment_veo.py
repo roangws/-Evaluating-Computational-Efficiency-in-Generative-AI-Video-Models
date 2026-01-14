@@ -13,6 +13,9 @@ from google import genai
 warnings.filterwarnings('ignore')
 
 # Configuration
+SANITY_ONLY = True  # Set to True to run sanity check first, False for full experiment
+NUM_CLIP_SAMPLE_FRAMES = 8  # Number of frames to sample for CLIP scoring
+
 PROMPTS = [
     "A person walking in a park on a sunny day",
     "A car driving on a highway with trees in background",
@@ -34,6 +37,7 @@ SUMMARY_FILE = "summary_veo.txt"
 LOG_FILE = "veo_experiment.log"
 OUTPUT_VIDEO_DIR = "output_videos"
 OUTPUT_FRAMES_DIR = "output_frames"
+DEBUG_CLIP_DIR = "output_videos/debug_clip_frames"
 
 # Pricing (as of Jan 2025 - Gemini API Veo pricing)
 # Veo 3.1 Fast: $0.15 per second (720p/1080p)
@@ -80,37 +84,90 @@ def calculate_frame_consistency(frames):
     return float(consistency)
 
 
-def calculate_clip_score(frame, prompt_text):
+def calculate_clip_score(frames, prompt_text, save_debug=False, debug_prefix=""):
     """
-    Calculate CLIP score for text-video alignment.
+    Calculate CLIP score for text-video alignment using multiple sampled frames.
+    Matches CogVideoX methodology: sample K frames uniformly, compute CLIP on each, average.
     
     Args:
-        frame: numpy array (single video frame, HxWxC, uint8)
-        prompt_text: str (the text prompt)
+        frames: list of numpy arrays (video frames, HxWxC, uint8, RGB)
+        prompt_text: str (the exact text prompt)
+        save_debug: bool (save sampled frames for debugging)
+        debug_prefix: str (prefix for debug filenames)
     
     Returns:
-        float: CLIP score (0-100 scale)
+        float: CLIP score (0-100 scale, matching CogVideoX)
+    
+    Raises:
+        Exception: If CLIP scoring fails (no silent failures)
     """
     global clip_metric
     
     if clip_metric is None:
-        return 0.0
+        raise Exception("CLIP metric not initialized")
     
-    try:
-        if isinstance(frame, np.ndarray):
-            if frame.dtype != np.uint8:
-                frame = frame.astype(np.uint8)
-            frame_tensor = torch.from_numpy(frame).permute(2, 0, 1)
-        else:
-            frame_tensor = frame
+    # Validate frames
+    if not frames or len(frames) == 0:
+        raise Exception("Empty frames list passed to CLIP scoring")
+    
+    # Sample K frames uniformly across the video
+    num_frames = len(frames)
+    if num_frames < NUM_CLIP_SAMPLE_FRAMES:
+        sampled_indices = list(range(num_frames))
+    else:
+        sampled_indices = np.linspace(0, num_frames - 1, NUM_CLIP_SAMPLE_FRAMES, dtype=int)
+    
+    sampled_frames = [frames[i] for i in sampled_indices]
+    
+    log_message(f"CLIP: Sampling {len(sampled_frames)} frames from {num_frames} total frames")
+    log_message(f"CLIP: Using prompt text: '{prompt_text}'")
+    
+    # Save debug artifacts if requested
+    if save_debug:
+        os.makedirs(DEBUG_CLIP_DIR, exist_ok=True)
+        for idx, frame in enumerate(sampled_frames):
+            debug_path = os.path.join(DEBUG_CLIP_DIR, f"{debug_prefix}_frame_{idx}.jpg")
+            cv2.imwrite(debug_path, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
         
-        frame_tensor = frame_tensor.unsqueeze(0)
+        prompt_path = os.path.join(DEBUG_CLIP_DIR, f"{debug_prefix}_prompt.txt")
+        with open(prompt_path, 'w') as f:
+            f.write(prompt_text)
         
+        log_message(f"Debug: Saved {len(sampled_frames)} frames and prompt to {DEBUG_CLIP_DIR}")
+    
+    # Compute CLIP score for each sampled frame
+    clip_scores = []
+    for idx, frame in enumerate(sampled_frames):
+        # Validate frame format
+        if not isinstance(frame, np.ndarray):
+            raise Exception(f"Frame {idx} is not a numpy array: {type(frame)}")
+        
+        if frame.dtype != np.uint8:
+            frame = frame.astype(np.uint8)
+        
+        if len(frame.shape) != 3 or frame.shape[2] != 3:
+            raise Exception(f"Frame {idx} has invalid shape: {frame.shape}, expected (H,W,3)")
+        
+        # Convert to tensor: (H,W,C) -> (C,H,W)
+        frame_tensor = torch.from_numpy(frame).permute(2, 0, 1).unsqueeze(0)
+        
+        # Compute CLIP score
         score = clip_metric(frame_tensor, [prompt_text])
-        return float(score.detach().cpu().item())
-    except Exception as e:
-        log_message(f"CLIP score calculation failed: {e}", "WARNING")
-        return 0.0
+        score_value = float(score.detach().cpu().item())
+        clip_scores.append(score_value)
+        
+        log_message(f"CLIP: Frame {idx} score = {score_value:.2f}")
+    
+    # Average scores across all sampled frames
+    avg_clip_score = np.mean(clip_scores)
+    
+    log_message(f"CLIP: Average score across {len(clip_scores)} frames = {avg_clip_score:.2f}")
+    
+    # Validate result
+    if np.isnan(avg_clip_score) or np.isinf(avg_clip_score):
+        raise Exception(f"CLIP score is NaN or Inf: {avg_clip_score}")
+    
+    return float(avg_clip_score)
 
 
 def extract_frames_from_video(video_path):
@@ -301,20 +358,36 @@ def generate_veo_video(prompt_text, run_number, prompt_index):
         # Extract frames for quality metrics
         frames = extract_frames_from_video(video_path)
         
-        if len(frames) == 0:
+        # EXPLICIT VALIDATION: Ensure frames were extracted
+        if not frames or len(frames) == 0:
+            status = "FRAME_EXTRACT_ERROR"
             raise Exception("No frames extracted from generated video")
         
         log_message(f"Extracted {len(frames)} frames from video")
         
-        # Calculate CLIP score (middle frame)
-        middle_idx = len(frames) // 2
-        middle_frame = frames[middle_idx]
-        clip_score = calculate_clip_score(middle_frame, prompt_text)
+        # EXPLICIT ASSERTION: Verify we have frames to work with
+        assert len(frames) > 0, "Frame list is empty after extraction"
+        
+        # Calculate CLIP score using sampled frames (matching CogVideoX methodology)
+        # Save debug artifacts for sanity runs
+        save_debug = (run_number == 1 and prompt_index == 1)
+        debug_prefix = f"sanity_prompt{prompt_index}_run{run_number}"
+        
+        try:
+            clip_score = calculate_clip_score(frames, prompt_text, save_debug=save_debug, debug_prefix=debug_prefix)
+        except Exception as clip_error:
+            status = f"CLIP_ERROR:{str(clip_error)[:50]}"
+            log_message(f"CLIP scoring failed: {clip_error}", "ERROR")
+            import traceback
+            log_message(f"CLIP traceback:\n{traceback.format_exc()}", "ERROR")
+            raise  # Re-raise to fail loudly
         
         # Calculate frame consistency
         frame_consistency = calculate_frame_consistency(frames)
         
-        # Save sample frame
+        # Save sample frame (middle frame)
+        middle_idx = len(frames) // 2
+        middle_frame = frames[middle_idx]
         frames_dir = f"{OUTPUT_FRAMES_DIR}/veo_prompt_{prompt_index}"
         os.makedirs(frames_dir, exist_ok=True)
         frame_path = os.path.join(frames_dir, f"run_{run_number}_middle_frame.jpg")
@@ -372,6 +445,53 @@ def append_to_csv(result):
     df = pd.DataFrame([result])
     file_exists = os.path.exists(RESULTS_CSV_FILE)
     df.to_csv(RESULTS_CSV_FILE, mode='a', header=not file_exists, index=False)
+
+
+def run_sanity_experiment():
+    """Run sanity check: generate 1 video and validate CLIP scoring."""
+    global videos_completed, experiment_start_time
+    
+    log_message("="*60)
+    log_message("SANITY CHECK: TESTING CLIP SCORING")
+    log_message("="*60)
+    log_message("Generating 1 video (prompt_index=1, run_number=1)")
+    log_message("Acceptance criteria: status=SUCCESS, clip_score > 0")
+    log_message("="*60)
+    
+    experiment_start_time = time.time()
+    
+    # Generate single video
+    prompt = PROMPTS[0]
+    prompt_index = 1
+    run_number = 1
+    
+    result = generate_veo_video(prompt, run_number, prompt_index)
+    
+    # Validate sanity check
+    log_message("\n" + "="*60)
+    log_message("SANITY CHECK RESULTS")
+    log_message("="*60)
+    log_message(f"Status: {result['status']}")
+    log_message(f"CLIP Score: {result['clip_score']}")
+    log_message(f"Frame Consistency: {result['frame_consistency']}")
+    log_message("="*60)
+    
+    # Check acceptance criteria
+    if result['status'] != 'SUCCESS':
+        log_message(f"\n❌ SANITY CHECK FAILED: status = {result['status']} (expected SUCCESS)", "ERROR")
+        log_message("STOPPING: Fix the error before running full experiment.", "ERROR")
+        return False
+    
+    if result['clip_score'] <= 0 or np.isnan(result['clip_score']):
+        log_message(f"\n❌ SANITY CHECK FAILED: clip_score = {result['clip_score']} (expected > 0)", "ERROR")
+        log_message("STOPPING: CLIP scoring is not working correctly.", "ERROR")
+        return False
+    
+    log_message("\n✅ SANITY CHECK PASSED!")
+    log_message(f"CLIP scoring is working: score = {result['clip_score']:.2f}")
+    log_message("Proceeding to full experiment...\n")
+    
+    return True
 
 
 def run_experiments():
@@ -534,8 +654,28 @@ def main():
     # Create output directories
     os.makedirs(OUTPUT_VIDEO_DIR, exist_ok=True)
     os.makedirs(OUTPUT_FRAMES_DIR, exist_ok=True)
+    os.makedirs(DEBUG_CLIP_DIR, exist_ok=True)
     
-    # Run experiments
+    # Run sanity check first if SANITY_ONLY is True
+    if SANITY_ONLY:
+        log_message("\n🔍 Running SANITY CHECK mode...\n")
+        sanity_passed = run_sanity_experiment()
+        
+        if not sanity_passed:
+            log_message("\n❌ Sanity check failed. Please fix issues before running full experiment.", "ERROR")
+            log_message("Check debug artifacts in: " + DEBUG_CLIP_DIR, "ERROR")
+            return
+        
+        log_message("\n✅ Sanity check passed! To run full experiment:")
+        log_message("   1. Set SANITY_ONLY = False in experiment_veo.py")
+        log_message("   2. Run the script again")
+        log_message("\nOr the script will automatically proceed to full run...\n")
+        
+        # Automatically proceed to full experiment
+        log_message("\n🚀 Proceeding to FULL EXPERIMENT...\n")
+        time.sleep(2)
+    
+    # Run full experiments
     results = run_experiments()
     
     # Calculate statistics

@@ -1,10 +1,10 @@
 model_name,run_number,prompt_index,prompt_text,inference_time_seconds,peak_memory_gb,compute_cost_usd,clip_score,frame_consistency,status
-Google Veo 3.1,1,1,A person walking in a park on a sunny day,64.40937113761902,0.0,0.75,0.0,0.16514571011066437,SUCCESS
-Google Veo 3.1,2,1,A person walking in a park on a sunny day,74.4623920917511,0.0,0.75,0.0,0.3327312469482422,SUCCESS
-Google Veo 3.1,3,1,A person walking in a park on a sunny day,64.17945981025696,0.0,0.75,0.0,0.1987447738647461,SUCCESS
-Google Veo 3.1,1,2,A car driving on a highway with trees in background,54.11189675331116,0.0,0.75,0.0,0.1524980366230011,SUCCESS
-Google Veo 3.1,2,2,A car driving on a highway with trees in background,53.96047592163086,0.0,0.75,0.0,0.21614018082618713,SUCCESS
-Google Veo 3.1,3,2,A car driving on a highway with trees in background,53.57428979873657,0.0,0.75,0.0,0.1481202244758606,SUCCESS
-Google Veo 3.1,1,3,A cat playing with a ball in a living room,53.84877800941467,0.0,0.75,0.0,0.3637608587741852,SUCCESS
-Google Veo 3.1,2,3,A cat playing with a ball in a living room,64.34851479530334,0.0,0.75,0.0,0.17395365238189697,SUCCESS
-Google Veo 3.1,3,3,A cat playing with a ball in a living room,53.58564901351929,0.0,0.75,0.0,0.20342448353767395,SUCCESS
+Google Veo 3.1,1,1,A person walking in a park on a sunny day,74.29049897193909,0.0,0.75,26.083746194839478,0.4085702896118164,SUCCESS
+Google Veo 3.1,2,1,A person walking in a park on a sunny day,54.15347981452942,0.0,0.75,29.750049352645874,0.18832722306251526,SUCCESS
+Google Veo 3.1,3,1,A person walking in a park on a sunny day,64.15342473983765,0.0,0.75,30.11520004272461,0.20210221409797668,SUCCESS
+Google Veo 3.1,1,2,A car driving on a highway with trees in background,63.93940782546997,0.0,0.75,24.129778623580933,0.33361777663230896,SUCCESS
+Google Veo 3.1,2,2,A car driving on a highway with trees in background,74.29137706756592,0.0,0.75,22.970344066619873,0.3430051803588867,SUCCESS
+Google Veo 3.1,3,2,A car driving on a highway with trees in background,53.73013401031494,0.0,0.75,25.663577795028687,0.12998540699481964,SUCCESS
+Google Veo 3.1,1,3,A cat playing with a ball in a living room,53.6312530040741,0.0,0.75,32.811140298843384,0.18703053891658783,SUCCESS
+Google Veo 3.1,2,3,A cat playing with a ball in a living room,53.37379193305969,0.0,0.75,30.149442195892334,0.18709635734558105,SUCCESS
+Google Veo 3.1,3,3,A cat playing with a ball in a living room,64.04437708854675,0.0,0.75,33.426305532455444,0.38189896941185,SUCCESS
