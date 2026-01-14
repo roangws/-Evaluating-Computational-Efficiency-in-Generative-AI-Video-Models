@@ -35,7 +35,7 @@ Provide data-driven insights for choosing between local and cloud-based AI video
 |----------|--------|--------|
 | **⚡ Fastest** | Google Veo 3.1 | 61.73s vs 257.90s (4.2× faster than fastest local) |
 | **💰 Cheapest** | CogVideoX-2b | $0.08/video vs $0.75 (9.4× cheaper than cloud) |
-| **🎨 Best Quality** | CogVideoX-5b | CLIP 32.20, Consistency 0.563 |
+| **🎨 Best Quality(technically speaking)** | CogVideoX-5b | CLIP 32.20, Consistency 0.563 |
 | **🚀 Easiest Setup** | Google Veo 3.1 | No GPU required, just API key |
 | **📈 Best for Batch** | CogVideoX-2b | $0.08 × 1000 = $80 vs $750 cloud |
 

@@ -1,0 +1,13 @@
+torch>=2.0.0
+diffusers>=0.30.0
+transformers>=4.40.0
+accelerate>=0.30.0
+safetensors>=0.4.0
+torchmetrics>=1.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+opencv-python>=4.8.0
+scipy>=1.11.0
+ftfy>=6.1.0
+sentencepiece>=0.1.99
+protobuf>=3.20.0
