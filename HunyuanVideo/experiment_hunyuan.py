@@ -17,7 +17,7 @@ from torchmetrics.multimodal.clip_score import CLIPScore
 warnings.filterwarnings('ignore')
 
 # Configuration
-MODEL_ID = "hunyuanvideo-community/HunyuanVideo-1.5-Diffusers-480p_t2v"
+MODEL_ID = "tencent/HunyuanVideo-1.5"
 
 PROMPTS = [
     "A person walking in a park on a sunny day",
@@ -305,7 +305,7 @@ def load_model():
         
         pipeline = HunyuanVideo15Pipeline.from_pretrained(
             MODEL_ID,
-            torch_dtype=torch.float16
+            torch_dtype=torch.bfloat16
         )
         
         pipeline.enable_model_cpu_offload()
