@@ -17,7 +17,7 @@ from torchmetrics.multimodal.clip_score import CLIPScore
 warnings.filterwarnings('ignore')
 
 # Configuration
-MODEL_ID = "tencent/HunyuanVideo-1.5"
+MODEL_ID = "hunyuanvideo-community/HunyuanVideo-1.5-Diffusers-720p_t2v"
 
 PROMPTS = [
     "A person walking in a park on a sunny day",
