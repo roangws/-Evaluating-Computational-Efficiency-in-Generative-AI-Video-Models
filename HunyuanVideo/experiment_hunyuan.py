@@ -166,16 +166,19 @@ def append_to_csv(result):
     df.to_csv(RESULTS_CSV_FILE, mode='a', header=not file_exists, index=False)
 
 def measure_inference(pipeline, prompt, run_number, prompt_index):
+    # Aggressive memory cleanup to prevent fragmentation
+    torch.cuda.synchronize()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
     gc.collect()
+    torch.cuda.synchronize()
     
     start_time = time.time()
     
     with torch.no_grad():
         try:
+            torch.cuda.synchronize()
             torch.cuda.empty_cache()
-            torch.cuda.reset_peak_memory_stats()
             gc.collect()
             
             seed = BASE_SEED * prompt_index + run_number
@@ -238,7 +241,10 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 # Already in [0, 255] range
                 video = video.clip(0, 255).astype(np.uint8)
     
+    # Post-inference cleanup with sync
+    torch.cuda.synchronize()
     torch.cuda.empty_cache()
+    gc.collect()
     
     # Calculate quality metrics
     if isinstance(video, list):
