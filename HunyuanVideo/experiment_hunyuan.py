@@ -258,13 +258,6 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 if idx == 0:
                     print(f"[DEBUG-COLOR-RANGE] After clip+uint8: dtype={frame.dtype}, min={frame.min()}, max={frame.max()}")
             
-            # Convert BGR to RGB if needed
-            if frame.shape[-1] == 3:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                # DEBUG: After cvtColor (only first frame)
-                if idx == 0:
-                    print(f"[DEBUG-COLOR-RANGE] After cvtColor: min={frame.min()}, max={frame.max()}")
-            
             # Invert pixel values to fix inverted colors from pipeline
             #line removed for fix the issue with the colors
             #frame = 255 - frame
