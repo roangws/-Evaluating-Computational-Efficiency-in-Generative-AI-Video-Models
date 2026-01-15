@@ -222,7 +222,8 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
             #    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
             # Invert pixel values to fix inverted colors from pipeline
-            frame = 255 - frame
+            #line removed for fix the issue with the colors
+            #frame = 255 - frame
 
             converted_frames.append(frame)
         video = converted_frames
@@ -294,7 +295,7 @@ def load_model():
         
         pipeline = HunyuanVideo15Pipeline.from_pretrained(
             MODEL_ID,
-            torch_dtype=torch.bfloat16
+            torch_dtype=torch.float16
         )
         
         pipeline.enable_model_cpu_offload()
