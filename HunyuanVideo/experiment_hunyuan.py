@@ -251,21 +251,8 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 print(f"[DEBUG-COLOR-RANGE] After .numpy(): dtype={frame.dtype}, min={frame.min():.4f}, max={frame.max():.4f}")
 
             if frame.dtype != np.uint8:
-                if frame.min() < -0.5:
-                    # VAE outputs [-1, 1], map to [0, 1] then to [0, 255]
-                    scaled_frame = (frame + 1) / 2 * 255
-                    if idx == 0:
-                        print(f"[DEBUG-COLOR-RANGE] Detected [-1,1] range, scaling result: min={scaled_frame.min():.4f}, max={scaled_frame.max():.4f}")
-                    frame = scaled_frame.clip(0, 255).astype(np.uint8)
-                elif frame.max() <= 1.0:
-                    # VAE outputs [0, 1], map directly to [0, 255]
-                    scaled_frame = frame * 255
-                    if idx == 0:
-                        print(f"[DEBUG-COLOR-RANGE] Detected [0,1] range, scaling result: min={scaled_frame.min():.4f}, max={scaled_frame.max():.4f}")
-                    frame = scaled_frame.clip(0, 255).astype(np.uint8)
-                else:
-                    # Already in [0, 255] range
-                    frame = frame.clip(0, 255).astype(np.uint8)
+                # HunyuanVideo already outputs [0,1] range
+                frame = (frame * 255).clip(0, 255).astype(np.uint8)
                 
                 # DEBUG: After clip+uint8 (only first frame)
                 if idx == 0:
@@ -286,15 +273,8 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
         video = converted_frames
     else:
         if video.dtype != np.uint8:
-            if video.min() < -0.5:
-                # VAE outputs [-1, 1], map to [0, 1] then to [0, 255]
-                video = ((video + 1) / 2 * 255).clip(0, 255).astype(np.uint8)
-            elif video.max() <= 1.0:
-                # VAE outputs [0, 1], map directly to [0, 255]
-                video = (video * 255).clip(0, 255).astype(np.uint8)
-            else:
-                # Already in [0, 255] range
-                video = video.clip(0, 255).astype(np.uint8)
+            # HunyuanVideo already outputs [0,1] range
+            video = (video * 255).clip(0, 255).astype(np.uint8)
     
     # Post-inference cleanup with sync
     torch.cuda.synchronize()
