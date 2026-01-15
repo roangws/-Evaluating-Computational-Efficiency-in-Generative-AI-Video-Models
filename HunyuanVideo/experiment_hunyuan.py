@@ -202,6 +202,17 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
             # DEBUG: Check pipeline output range
             if isinstance(video, torch.Tensor):
                 print(f"[DEBUG-COLOR-RANGE] Pipeline output (Tensor): dtype={video.dtype}, shape={video.shape}, min={video.min():.4f}, max={video.max():.4f}")
+            elif isinstance(video, np.ndarray):
+                print(f"[DEBUG-COLOR-RANGE] numpy array shape: {video.shape}, dtype: {video.dtype}, min: {video.min():.4f}, max: {video.max():.4f}")
+                
+                # If 4D: (frames, height, width, channels)
+                if video.ndim == 4:
+                    converted_frames = []
+                    for i in range(video.shape[0]):
+                        frame = video[i]
+                        print(f"[DEBUG-COLOR-RANGE] Frame {i}: dtype={frame.dtype}, min={frame.min():.4f}, max={frame.max():.4f}")
+                        converted_frames.append(frame)
+                    video = converted_frames
             elif isinstance(video, list):
                 print(f"[DEBUG-COLOR-RANGE] Pipeline output (list): len={len(video)}")
                 if len(video) > 0:
