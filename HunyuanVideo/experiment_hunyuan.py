@@ -192,6 +192,14 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 num_inference_steps=NUM_INFERENCE_STEPS,
                 generator=generator,
             ).frames[0]
+            
+            # DEBUG: Check pipeline output range
+            if isinstance(video, torch.Tensor):
+                print(f"[DEBUG-COLOR-RANGE] Pipeline output: dtype={video.dtype}, min={video.min():.4f}, max={video.max():.4f}")
+            elif isinstance(video, list) and len(video) > 0:
+                first_frame = video[0]
+                if isinstance(first_frame, torch.Tensor):
+                    print(f"[DEBUG-COLOR-RANGE] Pipeline output (first frame): dtype={first_frame.dtype}, min={first_frame.min():.4f}, max={first_frame.max():.4f}")
         except Exception as e:
             print(f"Error during inference: {e}")
             raise
@@ -208,23 +216,37 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
 
     if isinstance(video, list):
         converted_frames = []
-        for frame in video:
+        for idx, frame in enumerate(video):
             if isinstance(frame, torch.Tensor):
                 frame = frame.cpu().numpy()
             else:
                 frame = np.asarray(frame)
+            
+            # DEBUG: After numpy conversion (only first frame)
+            if idx == 0:
+                print(f"[DEBUG-COLOR-RANGE] After .numpy(): dtype={frame.dtype}, min={frame.min():.4f}, max={frame.max():.4f}")
 
             if frame.dtype != np.uint8:
                 if frame.min() < 0 or frame.max() <= 1.0:
                     # VAE outputs [-1, 1], map to [0, 1] then to [0, 255]
-                    frame = ((frame + 1) / 2 * 255).clip(0, 255).astype(np.uint8)
+                    scaled_frame = (frame + 1) / 2 * 255
+                    if idx == 0:
+                        print(f"[DEBUG-COLOR-RANGE] Scaling result: min={scaled_frame.min():.4f}, max={scaled_frame.max():.4f}")
+                    frame = scaled_frame.clip(0, 255).astype(np.uint8)
                 else:
                     # Already in [0, 255] range
                     frame = frame.clip(0, 255).astype(np.uint8)
+                
+                # DEBUG: After clip+uint8 (only first frame)
+                if idx == 0:
+                    print(f"[DEBUG-COLOR-RANGE] After clip+uint8: dtype={frame.dtype}, min={frame.min()}, max={frame.max()}")
             
             # Convert BGR to RGB if needed
             if frame.shape[-1] == 3:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                # DEBUG: After cvtColor (only first frame)
+                if idx == 0:
+                    print(f"[DEBUG-COLOR-RANGE] After cvtColor: min={frame.min()}, max={frame.max()}")
             
             # Invert pixel values to fix inverted colors from pipeline
             #line removed for fix the issue with the colors
