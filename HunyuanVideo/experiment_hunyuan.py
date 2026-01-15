@@ -184,6 +184,9 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
             seed = BASE_SEED * prompt_index + run_number
             generator = torch.Generator(device="cuda").manual_seed(seed)
             
+            # DEBUG: Starting pipeline inference
+            print("[DEBUG-COLOR-RANGE] Starting pipeline inference...")
+            
             video = pipeline(
                 prompt=prompt,
                 num_frames=NUM_FRAMES,
@@ -193,13 +196,23 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 generator=generator,
             ).frames[0]
             
+            # DEBUG: Pipeline returned
+            print(f"[DEBUG-COLOR-RANGE] Pipeline returned, type={type(video)}")
+            
             # DEBUG: Check pipeline output range
             if isinstance(video, torch.Tensor):
-                print(f"[DEBUG-COLOR-RANGE] Pipeline output: dtype={video.dtype}, min={video.min():.4f}, max={video.max():.4f}")
-            elif isinstance(video, list) and len(video) > 0:
-                first_frame = video[0]
-                if isinstance(first_frame, torch.Tensor):
-                    print(f"[DEBUG-COLOR-RANGE] Pipeline output (first frame): dtype={first_frame.dtype}, min={first_frame.min():.4f}, max={first_frame.max():.4f}")
+                print(f"[DEBUG-COLOR-RANGE] Pipeline output (Tensor): dtype={video.dtype}, shape={video.shape}, min={video.min():.4f}, max={video.max():.4f}")
+            elif isinstance(video, list):
+                print(f"[DEBUG-COLOR-RANGE] Pipeline output (list): len={len(video)}")
+                if len(video) > 0:
+                    first_frame = video[0]
+                    print(f"[DEBUG-COLOR-RANGE] First frame type={type(first_frame)}")
+                    if isinstance(first_frame, torch.Tensor):
+                        print(f"[DEBUG-COLOR-RANGE] First frame (Tensor): dtype={first_frame.dtype}, shape={first_frame.shape}, min={first_frame.min():.4f}, max={first_frame.max():.4f}")
+                    elif isinstance(first_frame, np.ndarray):
+                        print(f"[DEBUG-COLOR-RANGE] First frame (numpy): dtype={first_frame.dtype}, shape={first_frame.shape}, min={first_frame.min():.4f}, max={first_frame.max():.4f}")
+            else:
+                print(f"[DEBUG-COLOR-RANGE] Unexpected video type: {type(video)}")
         except Exception as e:
             print(f"Error during inference: {e}")
             raise
