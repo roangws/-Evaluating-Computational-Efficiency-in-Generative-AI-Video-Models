@@ -212,9 +212,11 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 frame = np.asarray(frame)
 
             if frame.dtype != np.uint8:
-                if frame.max() <= 1.0:
-                    frame = (frame * 255).clip(0, 255).astype(np.uint8)
+                if frame.min() < 0 or frame.max() <= 1.0:
+                    # VAE outputs [-1, 1], map to [0, 1] then to [0, 255]
+                    frame = ((frame + 1) / 2 * 255).clip(0, 255).astype(np.uint8)
                 else:
+                    # Already in [0, 255] range
                     frame = frame.clip(0, 255).astype(np.uint8)
             
             # Convert BGR to RGB if needed
@@ -229,9 +231,11 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
         video = converted_frames
     else:
         if video.dtype != np.uint8:
-            if video.max() <= 1.0:
-                video = (video * 255).clip(0, 255).astype(np.uint8)
+            if video.min() < 0 or video.max() <= 1.0:
+                # VAE outputs [-1, 1], map to [0, 1] then to [0, 255]
+                video = ((video + 1) / 2 * 255).clip(0, 255).astype(np.uint8)
             else:
+                # Already in [0, 255] range
                 video = video.clip(0, 255).astype(np.uint8)
     
     torch.cuda.empty_cache()
