@@ -218,8 +218,8 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                     frame = frame.clip(0, 255).astype(np.uint8)
             
             # Convert BGR to RGB if needed
-            #if frame.shape[-1] == 3:
-            #    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if frame.shape[-1] == 3:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
             # Invert pixel values to fix inverted colors from pipeline
             #line removed for fix the issue with the colors
