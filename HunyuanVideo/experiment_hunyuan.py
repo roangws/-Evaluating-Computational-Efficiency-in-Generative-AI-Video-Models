@@ -25,7 +25,7 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 3
-NUM_FRAMES = 49
+NUM_FRAMES = 129
 FPS = 24
 NUM_INFERENCE_STEPS = 50
 BASE_SEED = 1000
@@ -47,7 +47,7 @@ total_videos = len(PROMPTS) * NUM_RUNS_PER_PROMPT
 videos_completed = 0
 experiment_start_time = None
 clip_metric = None
-SANITY_ONLY = True
+SANITY_ONLY = False
 
 def calculate_frame_consistency(frames):
     """
@@ -183,9 +183,6 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
             seed = BASE_SEED * prompt_index + run_number
             generator = torch.Generator(device="cuda").manual_seed(seed)
             
-            # DEBUG: Starting pipeline inference
-            print("[DEBUG-COLOR-RANGE] Starting pipeline inference...")
-            
             video = pipeline(
                 prompt=prompt,
                 num_frames=NUM_FRAMES,
@@ -194,35 +191,6 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 num_inference_steps=NUM_INFERENCE_STEPS,
                 generator=generator,
             ).frames[0]
-            
-            # DEBUG: Pipeline returned
-            print(f"[DEBUG-COLOR-RANGE] Pipeline returned, type={type(video)}")
-            
-            # DEBUG: Check pipeline output range
-            if isinstance(video, torch.Tensor):
-                print(f"[DEBUG-COLOR-RANGE] Pipeline output (Tensor): dtype={video.dtype}, shape={video.shape}, min={video.min():.4f}, max={video.max():.4f}")
-            elif isinstance(video, np.ndarray):
-                print(f"[DEBUG-COLOR-RANGE] numpy array shape: {video.shape}, dtype: {video.dtype}, min: {video.min():.4f}, max: {video.max():.4f}")
-                
-                # If 4D: (frames, height, width, channels)
-                if video.ndim == 4:
-                    converted_frames = []
-                    for i in range(video.shape[0]):
-                        frame = video[i]
-                        print(f"[DEBUG-COLOR-RANGE] Frame {i}: dtype={frame.dtype}, min={frame.min():.4f}, max={frame.max():.4f}")
-                        converted_frames.append(frame)
-                    video = converted_frames
-            elif isinstance(video, list):
-                print(f"[DEBUG-COLOR-RANGE] Pipeline output (list): len={len(video)}")
-                if len(video) > 0:
-                    first_frame = video[0]
-                    print(f"[DEBUG-COLOR-RANGE] First frame type={type(first_frame)}")
-                    if isinstance(first_frame, torch.Tensor):
-                        print(f"[DEBUG-COLOR-RANGE] First frame (Tensor): dtype={first_frame.dtype}, shape={first_frame.shape}, min={first_frame.min():.4f}, max={first_frame.max():.4f}")
-                    elif isinstance(first_frame, np.ndarray):
-                        print(f"[DEBUG-COLOR-RANGE] First frame (numpy): dtype={first_frame.dtype}, shape={first_frame.shape}, min={first_frame.min():.4f}, max={first_frame.max():.4f}")
-            else:
-                print(f"[DEBUG-COLOR-RANGE] Unexpected video type: {type(video)}")
         except Exception as e:
             print(f"Error during inference: {e}")
             raise
@@ -244,28 +212,14 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
                 frame = frame.cpu().numpy()
             else:
                 frame = np.asarray(frame)
-            
-            # DEBUG: After numpy conversion (only first frame)
-            if idx == 0:
-                print(f"[DEBUG-COLOR-RANGE] After .numpy(): dtype={frame.dtype}, min={frame.min():.4f}, max={frame.max():.4f}")
 
             if frame.dtype != np.uint8:
-                # HunyuanVideo already outputs [0,1] range
                 frame = (frame * 255).clip(0, 255).astype(np.uint8)
-                
-                # DEBUG: After clip+uint8 (only first frame)
-                if idx == 0:
-                    print(f"[DEBUG-COLOR-RANGE] After clip+uint8: dtype={frame.dtype}, min={frame.min()}, max={frame.max()}")
-            
-            # Invert pixel values to fix inverted colors from pipeline
-            #line removed for fix the issue with the colors
-            #frame = 255 - frame
 
             converted_frames.append(frame)
         video = converted_frames
     else:
         if video.dtype != np.uint8:
-            # HunyuanVideo already outputs [0,1] range
             video = (video * 255).clip(0, 255).astype(np.uint8)
     
     # Post-inference cleanup with sync
@@ -298,17 +252,6 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
     
     output_path = f"{OUTPUT_VIDEO_DIR}/hunyuan_prompt_{prompt_index}/hunyuan_prompt_{prompt_index}_run_{run_number}.mp4"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Write a single PNG frame for color debugging 
-    try:
-        debug_frame_path = output_path.replace(".mp4", "_frame0.png")
-        imageio.imwrite(debug_frame_path, frames_for_quality[0])
-        frame0 = frames_for_quality[0]
-        if isinstance(frame0, np.ndarray) and frame0.ndim == 3 and frame0.shape[-1] == 3:
-            debug_frame_bgr_path = output_path.replace(".mp4", "_frame0_bgr.png")
-            imageio.imwrite(debug_frame_bgr_path, frame0[..., ::-1])
-    except Exception as e:
-        print(f"Warning: Debug frame export failed: {e}")
     
     try:
         imageio.mimwrite(
