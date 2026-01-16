@@ -6,12 +6,11 @@ import time
 import gc
 import pandas as pd
 from diffusers import HunyuanVideo15Pipeline
-from diffusers.utils import export_to_video
 import warnings
 import json
 from datetime import datetime
 import numpy as np
-import cv2
+import imageio
 from torchmetrics.multimodal.clip_score import CLIPScore
 
 warnings.filterwarnings('ignore')
@@ -301,7 +300,7 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     try:
-        export_to_video(video, output_path, fps=FPS)
+        imageio.mimwrite(output_path, video, fps=FPS, codec='libx265', pixelformat='yuv420p')
     except Exception as e:
         print(f"Warning: Video export failed: {e}")
         status = f"VIDEO_EXPORT_ERROR: {str(e)}"
