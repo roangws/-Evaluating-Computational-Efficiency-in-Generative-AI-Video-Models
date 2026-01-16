@@ -25,7 +25,7 @@ PROMPTS = [
 ]
 
 NUM_RUNS_PER_PROMPT = 3
-NUM_FRAMES = 129
+NUM_FRAMES = 75
 FPS = 24
 NUM_INFERENCE_STEPS = 50
 BASE_SEED = 1000
@@ -252,7 +252,7 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
     
     output_path = f"{OUTPUT_VIDEO_DIR}/hunyuan_prompt_{prompt_index}/hunyuan_prompt_{prompt_index}_run_{run_number}.mp4"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     try:
         imageio.mimwrite(
             output_path,
@@ -306,6 +306,11 @@ def load_model():
         if hasattr(pipeline, "vae"):
             if hasattr(pipeline.vae, 'enable_tiling'):
                 pipeline.vae.enable_tiling()
+            if hasattr(pipeline.vae, 'enable_slicing'):
+                pipeline.vae.enable_slicing()
+        
+        if hasattr(pipeline, "enable_attention_slicing"):
+            pipeline.enable_attention_slicing()
         
         # Configure guider for v1.5 guidance control
         pipeline.guider = pipeline.guider.new(guidance_scale=6.0)
