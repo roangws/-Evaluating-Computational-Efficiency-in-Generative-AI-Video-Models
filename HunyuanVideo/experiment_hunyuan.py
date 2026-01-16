@@ -298,9 +298,32 @@ def measure_inference(pipeline, prompt, run_number, prompt_index):
     
     output_path = f"{OUTPUT_VIDEO_DIR}/hunyuan_prompt_{prompt_index}/hunyuan_prompt_{prompt_index}_run_{run_number}.mp4"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # Write a single PNG frame for color debugging 
+    try:
+        debug_frame_path = output_path.replace(".mp4", "_frame0.png")
+        imageio.imwrite(debug_frame_path, frames_for_quality[0])
+        frame0 = frames_for_quality[0]
+        if isinstance(frame0, np.ndarray) and frame0.ndim == 3 and frame0.shape[-1] == 3:
+            debug_frame_bgr_path = output_path.replace(".mp4", "_frame0_bgr.png")
+            imageio.imwrite(debug_frame_bgr_path, frame0[..., ::-1])
+    except Exception as e:
+        print(f"Warning: Debug frame export failed: {e}")
     
     try:
-        imageio.mimwrite(output_path, video, fps=FPS, codec='libx265', pixelformat='yuv420p')
+        imageio.mimwrite(
+            output_path,
+            video,
+            fps=FPS,
+            codec='libx264',
+            pixelformat='yuv420p',
+            ffmpeg_params=[
+                "-color_range", "2",
+                "-color_primaries", "bt709",
+                "-color_trc", "bt709",
+                "-colorspace", "bt709"
+            ]
+        )
     except Exception as e:
         print(f"Warning: Video export failed: {e}")
         status = f"VIDEO_EXPORT_ERROR: {str(e)}"
