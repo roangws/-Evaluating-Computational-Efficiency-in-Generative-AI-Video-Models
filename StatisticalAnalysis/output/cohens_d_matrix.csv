@@ -1,0 +1,51 @@
+metric,model_1,model_2,cohens_d,abs_cohens_d,interpretation
+inference_time_seconds,HunyuanVideo-1.5,Google Veo 3.1,104.49804184143869,104.49804184143869,large
+inference_time_seconds,HunyuanVideo-1.5,CogVideoX-5b,59.74579744987376,59.74579744987376,large
+inference_time_seconds,HunyuanVideo-1.5,CogVideoX-2b,1028.762121761793,1028.762121761793,large
+inference_time_seconds,HunyuanVideo-1.5,CogVideoX1.5-5B,-787.559163548066,787.559163548066,large
+inference_time_seconds,Google Veo 3.1,CogVideoX-5b,-102.52192511163065,102.52192511163065,large
+inference_time_seconds,Google Veo 3.1,CogVideoX-2b,-37.845919383767644,37.845919383767644,large
+inference_time_seconds,Google Veo 3.1,CogVideoX1.5-5B,-318.4542857230286,318.4542857230286,large
+inference_time_seconds,CogVideoX-5b,CogVideoX-2b,276.03093824053377,276.03093824053377,large
+inference_time_seconds,CogVideoX-5b,CogVideoX1.5-5B,-672.0347596409633,672.0347596409633,large
+inference_time_seconds,CogVideoX-2b,CogVideoX1.5-5B,-1235.625309362716,1235.625309362716,large
+peak_memory_gb,HunyuanVideo-1.5,Google Veo 3.1,0.0,0.0,negligible
+peak_memory_gb,HunyuanVideo-1.5,CogVideoX-5b,0.0,0.0,negligible
+peak_memory_gb,HunyuanVideo-1.5,CogVideoX-2b,0.0,0.0,negligible
+peak_memory_gb,HunyuanVideo-1.5,CogVideoX1.5-5B,0.0,0.0,negligible
+peak_memory_gb,Google Veo 3.1,CogVideoX-5b,0.0,0.0,negligible
+peak_memory_gb,Google Veo 3.1,CogVideoX-2b,0.0,0.0,negligible
+peak_memory_gb,Google Veo 3.1,CogVideoX1.5-5B,0.0,0.0,negligible
+peak_memory_gb,CogVideoX-5b,CogVideoX-2b,0.0,0.0,negligible
+peak_memory_gb,CogVideoX-5b,CogVideoX1.5-5B,0.0,0.0,negligible
+peak_memory_gb,CogVideoX-2b,CogVideoX1.5-5B,0.0,0.0,negligible
+compute_cost_usd,HunyuanVideo-1.5,Google Veo 3.1,1139.8583065096757,1139.8583065096757,large
+compute_cost_usd,HunyuanVideo-1.5,CogVideoX-5b,1793.4475271481292,1793.4475271481292,large
+compute_cost_usd,HunyuanVideo-1.5,CogVideoX-2b,2542.0792034464416,2542.0792034464416,large
+compute_cost_usd,HunyuanVideo-1.5,CogVideoX1.5-5B,1281.867739550024,1281.867739550024,large
+compute_cost_usd,Google Veo 3.1,CogVideoX-5b,1196.0225500284141,1196.0225500284141,large
+compute_cost_usd,Google Veo 3.1,CogVideoX-2b,5912.792520255203,5912.792520255203,large
+compute_cost_usd,Google Veo 3.1,CogVideoX1.5-5B,395.3284678919795,395.3284678919795,large
+compute_cost_usd,CogVideoX-5b,CogVideoX-2b,276.0309382405319,276.0309382405319,large
+compute_cost_usd,CogVideoX-5b,CogVideoX1.5-5B,-672.0347596409623,672.0347596409623,large
+compute_cost_usd,CogVideoX-2b,CogVideoX1.5-5B,-1235.6253093627138,1235.6253093627138,large
+clip_score,HunyuanVideo-1.5,Google Veo 3.1,0.16797619997448696,0.16797619997448696,negligible
+clip_score,HunyuanVideo-1.5,CogVideoX-5b,-1.0767893368041834,1.0767893368041834,large
+clip_score,HunyuanVideo-1.5,CogVideoX-2b,-0.7016881859733686,0.7016881859733686,medium
+clip_score,HunyuanVideo-1.5,CogVideoX1.5-5B,-1.0604793109516295,1.0604793109516295,large
+clip_score,Google Veo 3.1,CogVideoX-5b,-1.2944313221914263,1.2944313221914263,large
+clip_score,Google Veo 3.1,CogVideoX-2b,-0.9376482084869531,0.9376482084869531,large
+clip_score,Google Veo 3.1,CogVideoX1.5-5B,-1.2618690719554373,1.2618690719554373,large
+clip_score,CogVideoX-5b,CogVideoX-2b,0.5947480882663161,0.5947480882663161,medium
+clip_score,CogVideoX-5b,CogVideoX1.5-5B,-0.07504320166067256,0.07504320166067256,negligible
+clip_score,CogVideoX-2b,CogVideoX1.5-5B,-0.6159435641263854,0.6159435641263854,medium
+frame_consistency,HunyuanVideo-1.5,Google Veo 3.1,-0.005840380493438545,0.005840380493438545,negligible
+frame_consistency,HunyuanVideo-1.5,CogVideoX-5b,-1.5256512886740172,1.5256512886740172,large
+frame_consistency,HunyuanVideo-1.5,CogVideoX-2b,-1.5598547090117596,1.5598547090117596,large
+frame_consistency,HunyuanVideo-1.5,CogVideoX1.5-5B,-1.1367007617713105,1.1367007617713105,large
+frame_consistency,Google Veo 3.1,CogVideoX-5b,-1.6268174494325618,1.6268174494325618,large
+frame_consistency,Google Veo 3.1,CogVideoX-2b,-1.6875420461301316,1.6875420461301316,large
+frame_consistency,Google Veo 3.1,CogVideoX1.5-5B,-1.2971282155106825,1.2971282155106825,large
+frame_consistency,CogVideoX-5b,CogVideoX-2b,0.09887958926529429,0.09887958926529429,negligible
+frame_consistency,CogVideoX-5b,CogVideoX1.5-5B,0.7668331638746724,0.7668331638746724,medium
+frame_consistency,CogVideoX-2b,CogVideoX1.5-5B,0.7128578069723279,0.7128578069723279,medium

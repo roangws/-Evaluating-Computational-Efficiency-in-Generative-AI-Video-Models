@@ -1,0 +1,6 @@
+metric,f_statistic,p_value,df_between,df_within,significance
+inference_time_seconds,506573.8454783985,5.269636641250319e-131,4,58,***
+peak_memory_gb,inf,0.0,4,58,***
+compute_cost_usd,12160029.474350827,4.939393206252421e-171,4,58,***
+clip_score,4.610767928922427,0.002663892731331426,4,58,**
+frame_consistency,8.08112153557521,3.000045202498533e-05,4,58,***

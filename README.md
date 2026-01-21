@@ -3,7 +3,7 @@
 **Author**: Roan Guilherme Weigert Salgueiro  
 **Date**: January 2026
 
-A comprehensive benchmark study comparing **local GPU-based** video generation (CogVideoX) versus **cloud API-based** generation (Google Veo 3.1), measuring cost, speed, quality, and scalability.
+A comprehensive benchmark study comparing **5 generative AI video models** across local GPU-based (CogVideoX, HunyuanVideo) and cloud API-based (Google Veo 3.1) generation, with rigorous statistical analysis measuring cost, speed, quality, and scalability.
 
 ---
 
@@ -14,30 +14,48 @@ Provide data-driven insights for choosing between local and cloud-based AI video
 - **Performance**: Inference speed and throughput
 - **Quality**: CLIP score (text-video alignment) and frame consistency
 - **Scalability**: Hardware requirements vs cloud availability
+- **Statistical significance**: ANOVA, Tukey HSD, Cohen's d effect sizes
 
 ---
 
 ## 📊 Key Research Findings
 
-### Head-to-Head Comparison
+### Comprehensive Model Comparison (5 Models)
 
-| Metric | CogVideoX-2b (Local) | CogVideoX-5b (Local) | Google Veo 3.1 (Cloud) |
-|--------|---------------------|---------------------|------------------------|
-| **Avg Time/Video** | 257.90s | 611.11s | 61.73s |
-| **Cost/Video** | $0.08 | $0.20 | $0.75 |
-| **CLIP Score** | 30.90 | 32.20 | 28.30 |
-| **Frame Consistency** | 0.542 | 0.563 | 0.262 |
-| **Hardware Required** | 12GB+ GPU | 12GB+ GPU | None (API) |
+| Model | Avg Time (s) | Cost/Video | CLIP Score | Frame Consistency | Memory (GB) | Source |
+|-------|-------------|------------|------------|-------------------|-------------|--------|
+| **CogVideoX-2b** | 257.90 ± 0.43 | $0.085 | 30.90 ± 1.91 | 0.54 ± 0.19 | 12.24 | Local GPU |
+| **CogVideoX-5b** | 611.11 ± 1.76 | $0.200 | 32.20 ± 2.42 | 0.56 ± 0.22 | 12.00 | Local GPU |
+| **CogVideoX1.5-5B** | 1762.35 ± 1.67 | $0.578 | 32.40 ± 2.85 | 0.42 ± 0.14 | 12.49 | Local GPU |
+| **Google Veo 3.1** | 61.73 ± 8.58 | $0.750 | 28.34 ± 3.76 | 0.26 ± 0.10 | 0.00 | Cloud API |
+| **HunyuanVideo-1.5** | 696.23 ± 0.42 | $1.454 | 28.98 ± 3.79 | 0.26 ± 0.16 | 39.08 | Local GPU |
 
 ### 🏆 Winner by Category
 
 | Category | Winner | Reason |
 |----------|--------|--------|
-| **⚡ Fastest** | Google Veo 3.1 | 61.73s vs 257.90s (4.2× faster than fastest local) |
-| **💰 Cheapest** | CogVideoX-2b | $0.08/video vs $0.75 (9.4× cheaper than cloud) |
-| **🎨 Best Quality(technically speaking)** | CogVideoX-5b | CLIP 32.20, Consistency 0.563 |
+| **⚡ Fastest** | Google Veo 3.1 | 61.73s (4.2× faster than fastest local) |
+| **💰 Cheapest** | CogVideoX-2b | $0.085/video (17× cheaper than HunyuanVideo) |
+| **🎨 Best Quality** | CogVideoX1.5-5B | CLIP 32.40, statistically significant |
+| **🏅 Most Consistent** | CogVideoX-5b | Frame consistency 0.56 |
 | **🚀 Easiest Setup** | Google Veo 3.1 | No GPU required, just API key |
-| **📈 Best for Batch** | CogVideoX-2b | $0.08 × 1000 = $80 vs $750 cloud |
+| **📈 Best Cost-Efficiency** | CogVideoX-2b | Efficiency score: 198.26 |
+
+### 📊 Statistical Significance (ANOVA)
+
+All metrics showed **statistically significant differences** across models (p < 0.01):
+
+| Metric | F-statistic | p-value | Significance |
+|--------|-------------|---------|--------------|
+| Inference Time | 506,573.85 | < 0.001 | *** |
+| Compute Cost | 12,160,029.47 | < 0.001 | *** |
+| CLIP Score | 4.61 | 0.003 | ** |
+| Frame Consistency | 8.08 | < 0.001 | *** |
+
+**Key Post-Hoc Findings (Tukey HSD)**:
+- CogVideoX-5b significantly outperformed Google Veo 3.1 in CLIP score (p = 0.018)
+- CogVideoX1.5-5B significantly outperformed HunyuanVideo-1.5 (p = 0.048)
+- CogVideoX models showed significantly better frame consistency than cloud/HunyuanVideo
 
 ---
 
@@ -56,6 +74,19 @@ Provide data-driven insights for choosing between local and cloud-based AI video
 - **Success Rate**: 100% (9/9)
 - **Total Cost**: $6.75
 - **Hardware**: None (cloud-based)
+
+### Experiment 3: HunyuanVideo (Local GPU)
+- **Model Tested**: HunyuanVideo-1.5 (720p text-to-video)
+- **Videos Generated**: 9 (1 model × 3 prompts × 3 runs)
+- **Success Rate**: 100% (9/9)
+- **Total Cost**: $13.09
+- **Hardware**: NVIDIA A100-SXM4-80GB (39GB VRAM required)
+
+### Experiment 4: Statistical Analysis
+- **Models Analyzed**: All 5 models (63 total videos)
+- **Methods**: ANOVA, Tukey HSD, Cohen's d effect sizes
+- **Outputs**: Descriptive stats, pairwise comparisons, cost-efficiency rankings
+- **Tools**: Python (pandas, scipy, statsmodels)
 
 ### Standardized Test Prompts
 1. "A person walking in a park on a sunny day"
@@ -154,18 +185,34 @@ Break-even point: ~100 videos
 
 ```
 ├── README.md                 # This file (project overview)
-├── CogVideoX/                # Local GPU experiments
+├── CogVideoX/                # Local GPU experiments (3 models)
 │   ├── README.md             # Detailed CogVideoX documentation
 │   ├── experiment.py         # Benchmarking script
 │   ├── results.csv           # 45 video results
 │   ├── output_videos/        # Generated videos (45)
 │   └── output_frames/        # Preview frames (27)
-└── GoogleVeo/                # Cloud API experiments
-    ├── README.md             # Detailed Veo documentation
-    ├── experiment_veo.py     # API integration script
-    ├── results_veo.csv       # 9 video results
-    ├── output_videos/        # Generated videos (9)
-    └── output_frames/        # Preview frames (9)
+├── GoogleVeo/                # Cloud API experiments
+│   ├── README.md             # Detailed Veo documentation
+│   ├── experiment_veo.py     # API integration script
+│   ├── results_veo.csv       # 9 video results
+│   ├── output_videos/        # Generated videos (9)
+│   └── output_frames/        # Preview frames (9)
+├── HunyuanVideo/             # Local GPU experiments (HunyuanVideo-1.5)
+│   ├── README.md             # Detailed HunyuanVideo documentation
+│   ├── experiment_hunyuan.py # Benchmarking script
+│   ├── results_hunyuan.csv   # 9 video results
+│   ├── output_videos/        # Generated videos (9)
+│   └── output_frames/        # Preview frames (9)
+└── StatisticalAnalysis/      # Comprehensive statistical analysis
+    ├── README.md             # Analysis documentation
+    ├── statistical_analysis.py # Main analysis script
+    ├── requirements.txt      # Python dependencies
+    └── output/               # Analysis results
+        ├── descriptive_stats.csv
+        ├── anova_results.csv
+        ├── tukey_posthoc.csv
+        ├── cohens_d_matrix.csv
+        └── cost_efficiency_ranking.csv
 ```
 
 ---
@@ -174,10 +221,10 @@ Break-even point: ~100 videos
 
 | Category | Technologies |
 |----------|-------------|
-| **Local Models** | CogVideoX (2B, 5B, 1.5-5B), PyTorch, Diffusers, CUDA |
+| **Local Models** | CogVideoX (2B, 5B, 1.5-5B), HunyuanVideo-1.5, PyTorch, Diffusers, CUDA |
 | **Cloud API** | Google Gemini API, Veo 3.1, google-genai |
 | **Quality Metrics** | CLIP (OpenAI), Frame Consistency Analysis |
-| **Data Analysis** | Pandas, NumPy, SciPy |
+| **Statistical Analysis** | Pandas, NumPy, SciPy, Statsmodels (ANOVA, Tukey HSD) |
 | **Video Processing** | OpenCV, FFmpeg |
 | **Language** | Python 3.8+ |
 
@@ -185,23 +232,27 @@ Break-even point: ~100 videos
 
 ## 📈 Detailed Results
 
-### CogVideoX Models Comparison
+### All Models Comparison
 
-| Model | Parameters | Avg Time | CLIP Score | Consistency | Cost/Video |
-|-------|------------|----------|------------|-------------|------------|
-| CogVideoX-2b | 2B | 257.90s | 30.90 ± 1.91 | 0.542 ± 0.193 | $0.08 |
-| CogVideoX-5b | 5B | 611.11s | 32.20 ± 2.42 | 0.563 ± 0.218 | $0.20 |
-| CogVideoX1.5-5B | 5B+ | 1762.35s | 32.40 ± 2.85 | 0.424 ± 0.135 | $0.58 |
+| Model | Parameters | Avg Time | CLIP Score | Consistency | Cost/Video | Memory |
+|-------|------------|----------|------------|-------------|------------|--------|
+| CogVideoX-2b | 2B | 257.90s | 30.90 ± 1.91 | 0.542 ± 0.193 | $0.085 | 12.24GB |
+| CogVideoX-5b | 5B | 611.11s | 32.20 ± 2.42 | 0.563 ± 0.218 | $0.200 | 12.00GB |
+| CogVideoX1.5-5B | 5B+ | 1762.35s | 32.40 ± 2.85 | 0.424 ± 0.135 | $0.578 | 12.49GB |
+| Google Veo 3.1 | N/A | 61.73s | 28.34 ± 3.76 | 0.262 ± 0.103 | $0.750 | 0.00GB (API) |
+| HunyuanVideo-1.5 | N/A | 696.23s | 28.98 ± 3.79 | 0.262 ± 0.155 | $1.454 | 39.08GB |
 
-### Google Veo 3.1 Results
+### Cost-Efficiency Rankings
 
-| Metric | Value |
-|--------|-------|
-| Average Inference Time | 61.73 ± 8.58 seconds |
-| CLIP Score | 28.30 ± 3.80 |
-| Frame Consistency | 0.262 ± 0.103 |
-| Cost per Video | $0.75 (5 seconds × $0.15/sec) |
-| Video Duration | 5 seconds at 8 FPS |
+*Efficiency Score = (CLIP Score × Frame Consistency) / Compute Cost*
+
+| Rank | Model | Efficiency Score | Quality Score | Cost |
+|------|-------|------------------|---------------|------|
+| 🥇 1 | CogVideoX-2b | 198.26 | 16.76 | $0.085 |
+| 🥈 2 | CogVideoX-5b | 90.45 | 18.12 | $0.200 |
+| 🥉 3 | CogVideoX1.5-5B | 23.76 | 13.74 | $0.578 |
+| 4 | Google Veo 3.1 | 9.92 | 7.43 | $0.750 |
+| 5 | HunyuanVideo-1.5 | 5.21 | 7.58 | $1.454 |
 
 ---
 
@@ -220,6 +271,20 @@ cd GoogleVeo
 pip install -r requirements.txt
 export GEMINI_API_KEY='your-api-key'
 python experiment_veo.py
+```
+
+### Run HunyuanVideo Experiment (Local GPU)
+```bash
+cd HunyuanVideo
+pip install -r requirements.txt
+python experiment_hunyuan.py
+```
+
+### Run Statistical Analysis
+```bash
+cd StatisticalAnalysis
+source venv/bin/activate
+python statistical_analysis.py
 ```
 
 ---
@@ -254,6 +319,7 @@ This project is provided for academic and research purposes. Please respect the 
 
 ---
 
-**Last Updated**: January 13, 2026  
-**Total Videos Generated**: 54 (45 CogVideoX + 9 Veo)  
-**Experiment Status**: ✅ Complete
+**Last Updated**: January 21, 2026  
+**Total Videos Generated**: 63 (45 CogVideoX + 9 Veo + 9 HunyuanVideo)  
+**Experiment Status**: ✅ Complete  
+**Statistical Analysis**: ✅ Complete (ANOVA, Tukey HSD, Cohen's d)
