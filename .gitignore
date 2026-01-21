@@ -3,24 +3,8 @@ GoogleVeo/key/
 # macOS
 .DS_Store
 
-# Large output directories
-output_videos/
-output_frames/
-
-# Logs
-*.log
-Log_*.txt
-progress_log.txt
-Full_Log.txt
-
 # Backup files
 *.backup
 
 # Virtual environment
 .venv/
-
-# Checkpoints (can be large)
-checkpoint.json
-
-# CSV results (keep if small, comment out if large)
-# results_*.csv
