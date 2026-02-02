@@ -187,25 +187,67 @@ Break-even point: ~100 videos
 - 1000 videos: Local saves ~$670 ($80 vs $750)
 ```
 
-### User Perception Insights
+### User Perception Study Results
 
-**User Preference Rankings (32 participants):**
-1. 🥇 **Google Veo 3.1** (1.81 mean rank, 43.8% first-place votes)
-2. 🥈 **HunyuanVideo-1.5** (1.94 mean rank, 43.8% first-place votes)
-3. 🥉 **CogVideoX1.5-5B** (3.50 mean rank)
-4. **CogVideoX-5b** (3.62 mean rank)
-5. **CogVideoX-2b** (3.97 mean rank)
+#### Overall Preference Rankings (32 Participants)
 
-**Critical Finding**: User preferences **diverge from technical metrics**
-- Users prefer Google Veo 3.1 & HunyuanVideo-1.5 (ease of use, realism)
-- Technical benchmarks favor CogVideoX-5b & CogVideoX1.5-5B (CLIP scores)
-- **Implication**: Perceptual quality matters more than algorithmic metrics
+| Rank | Model | Mean Rank | First Place Votes | First Place % |
+|------|-------|-----------|-------------------|---------------|
+| 🥇 1 | **Google Veo 3.1** | 1.81 ± 0.97 | 14 | 43.8% |
+| 🥈 2 | **HunyuanVideo-1.5** | 1.94 ± 1.22 | 14 | 43.8% |
+| 🥉 3 | **CogVideoX1.5-5B** | 3.50 ± 1.02 | 1 | 3.1% |
+| 4 | **CogVideoX-5b** | 3.62 ± 1.04 | 1 | 3.1% |
+| 5 | **CogVideoX-2b** | 3.97 ± 1.06 | 2 | 6.2% |
 
-**Top User Satisfaction Drivers:**
-- **Realism**: HunyuanVideo-1.5 (4.72/5) dominates
-- **Ease of Use**: Google Veo 3.1 (4.66/5) significantly outperforms local models (2.06-2.94)
-- **Artifact Sensitivity**: Users highly intolerant of visual artifacts
-- **Willingness to Pay**: Aligns with satisfaction (Veo: 3.91, Hunyuan: 3.31)
+**Key Insight**: Google Veo 3.1 and HunyuanVideo-1.5 are statistically tied for user preference, each receiving 14 first-place votes (43.8%).
+
+#### Top Perception Metrics (5-point scale)
+
+**Overall Satisfaction:**
+- Google Veo 3.1: **4.38 ± 0.55** (Very Good)
+- HunyuanVideo-1.5: **4.25 ± 0.76** (Very Good)
+- CogVideoX models: 2.81-2.94 (Moderate)
+
+**Realism:**
+- HunyuanVideo-1.5: **4.72 ± 0.46** (Excellent - Highest)
+- Google Veo 3.1: **4.31 ± 0.78** (Very Good)
+- CogVideoX models: 2.62-3.09 (Moderate)
+
+**Ease of Use:**
+- Google Veo 3.1: **4.66 ± 0.48** (Excellent - Dominant)
+- CogVideoX models: 2.06-2.94 (Fair to Moderate)
+- HunyuanVideo-1.5: 2.69 (Moderate)
+
+**Artifacts Severity (lower is better):**
+- HunyuanVideo-1.5: **1.72 ± 0.73** (Minimal)
+- Google Veo 3.1: **1.72 ± 0.63** (Minimal)
+- CogVideoX1.5-5B: **3.66 ± 0.65** (Noticeable)
+
+#### Critical Insights
+
+**1. User Preference ≠ Technical Performance**
+- **User preference leaders**: Google Veo 3.1 & HunyuanVideo-1.5
+- **Technical performance leaders**: CogVideoX-5b & CogVideoX1.5-5B (CLIP scores)
+- **Implication**: Users prioritize perceptual quality (realism, ease of use) over algorithmic metrics
+
+**2. Ease of Use is a Major Differentiator**
+- Google Veo 3.1's ease of use (4.66) significantly outperforms all local models (2.06-2.94)
+- API-based solutions have strong UX advantage over local GPU deployment
+
+**3. Realism Drives Professional Adoption**
+- HunyuanVideo-1.5 leads in realism (4.72) and professional suitability (4.31)
+- Photorealistic output critical for user acceptance
+
+**4. Artifact Intolerance**
+- CogVideoX1.5-5B's high artifact severity (3.66) correlates with poor professional suitability (2.03)
+- Users highly sensitive to visual artifacts
+
+**5. Willingness to Pay Aligns with Satisfaction**
+- Google Veo 3.1: 3.91 (highest)
+- HunyuanVideo-1.5: 3.31
+- CogVideoX models: 2.03-2.50
+
+📁 **Detailed user study findings**: See [`StatisticalAnalysis/UserResearch/README.md`](StatisticalAnalysis/UserResearch/README.md)
 
 ---
 
@@ -289,7 +331,7 @@ Break-even point: ~100 videos
 
 ---
 
-## � Visualizations
+## 📊 Visualizations
 
 ### Figure 1: Quality Metrics Comparison
 
@@ -325,7 +367,7 @@ The cost-efficiency rankings employ a composite metric combining CLIP score, fra
 
 ---
 
-## �🚀 Quick Start
+## � Quick Start
 
 ### Run CogVideoX Experiment (Local GPU)
 ```bash
@@ -361,8 +403,8 @@ python statistical_analysis.py
 ## 📧 Contact
 
 **Author**: Roan Guilherme Weigert Salgueiro  
-**LinkedIn**: [\[Your LinkedIn\]  ](https://www.linkedin.com/in/-roan/)
-**GitHub**: [\[Your GitHub\]](https://github.com/roangws/)
+**LinkedIn**: [LinkedIn](https://www.linkedin.com/in/-roan/)  
+**Site**: [https://roanweigert.com/](https://roanweigert.com/)
 
 ---
 
