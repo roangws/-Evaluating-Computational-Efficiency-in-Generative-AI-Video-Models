@@ -1,0 +1,51 @@
+model,metric,mean,std,median,formatted
+HunyuanVideo-1.5,Visual Quality,4.53,0.67,5.0,4.53 ± 0.67
+HunyuanVideo-1.5,Realism,4.72,0.46,5.0,4.72 ± 0.46
+HunyuanVideo-1.5,Motion Smoothness,3.78,0.83,4.0,3.78 ± 0.83
+HunyuanVideo-1.5,Prompt Adherence,4.16,0.63,4.0,4.16 ± 0.63
+HunyuanVideo-1.5,Overall Satisfaction,4.25,0.76,4.0,4.25 ± 0.76
+HunyuanVideo-1.5,Artifacts Severity,1.72,0.73,2.0,1.72 ± 0.73
+HunyuanVideo-1.5,Ease Of Use,2.69,0.54,3.0,2.69 ± 0.54
+HunyuanVideo-1.5,Professional Suitability,4.31,0.78,4.5,4.31 ± 0.78
+HunyuanVideo-1.5,Social Media Suitability,4.0,0.57,4.0,4.00 ± 0.57
+HunyuanVideo-1.5,Willingness To Pay,3.31,0.97,3.0,3.31 ± 0.97
+Google Veo 3.1,Visual Quality,3.88,0.79,4.0,3.88 ± 0.79
+Google Veo 3.1,Realism,4.31,0.78,4.5,4.31 ± 0.78
+Google Veo 3.1,Motion Smoothness,2.81,0.59,3.0,2.81 ± 0.59
+Google Veo 3.1,Prompt Adherence,4.25,0.76,4.0,4.25 ± 0.76
+Google Veo 3.1,Overall Satisfaction,4.38,0.55,4.0,4.38 ± 0.55
+Google Veo 3.1,Artifacts Severity,1.72,0.63,2.0,1.72 ± 0.63
+Google Veo 3.1,Ease Of Use,4.66,0.48,5.0,4.66 ± 0.48
+Google Veo 3.1,Professional Suitability,4.19,0.59,4.0,4.19 ± 0.59
+Google Veo 3.1,Social Media Suitability,4.19,0.69,4.0,4.19 ± 0.69
+Google Veo 3.1,Willingness To Pay,3.91,1.06,4.0,3.91 ± 1.06
+CogVideoX-2b,Visual Quality,2.78,0.75,3.0,2.78 ± 0.75
+CogVideoX-2b,Realism,2.62,0.71,2.5,2.62 ± 0.71
+CogVideoX-2b,Motion Smoothness,2.78,0.61,3.0,2.78 ± 0.61
+CogVideoX-2b,Prompt Adherence,2.84,0.57,3.0,2.84 ± 0.57
+CogVideoX-2b,Overall Satisfaction,2.81,0.74,3.0,2.81 ± 0.74
+CogVideoX-2b,Artifacts Severity,2.97,0.47,3.0,2.97 ± 0.47
+CogVideoX-2b,Ease Of Use,2.81,0.74,3.0,2.81 ± 0.74
+CogVideoX-2b,Professional Suitability,1.97,0.74,2.0,1.97 ± 0.74
+CogVideoX-2b,Social Media Suitability,2.81,0.69,3.0,2.81 ± 0.69
+CogVideoX-2b,Willingness To Pay,2.12,0.75,2.0,2.12 ± 0.75
+CogVideoX-5b,Visual Quality,2.84,0.57,3.0,2.84 ± 0.57
+CogVideoX-5b,Realism,3.09,0.78,3.0,3.09 ± 0.78
+CogVideoX-5b,Motion Smoothness,3.22,0.87,3.0,3.22 ± 0.87
+CogVideoX-5b,Prompt Adherence,2.97,0.59,3.0,2.97 ± 0.59
+CogVideoX-5b,Overall Satisfaction,2.94,0.5,3.0,2.94 ± 0.50
+CogVideoX-5b,Artifacts Severity,2.81,0.69,3.0,2.81 ± 0.69
+CogVideoX-5b,Ease Of Use,2.94,0.8,3.0,2.94 ± 0.80
+CogVideoX-5b,Professional Suitability,2.97,0.59,3.0,2.97 ± 0.59
+CogVideoX-5b,Social Media Suitability,3.31,0.69,3.0,3.31 ± 0.69
+CogVideoX-5b,Willingness To Pay,2.5,1.05,3.0,2.50 ± 1.05
+CogVideoX1.5-5B,Visual Quality,2.72,0.77,3.0,2.72 ± 0.77
+CogVideoX1.5-5B,Realism,2.84,0.72,3.0,2.84 ± 0.72
+CogVideoX1.5-5B,Motion Smoothness,2.38,0.66,2.0,2.38 ± 0.66
+CogVideoX1.5-5B,Prompt Adherence,3.19,0.69,3.0,3.19 ± 0.69
+CogVideoX1.5-5B,Overall Satisfaction,2.94,0.56,3.0,2.94 ± 0.56
+CogVideoX1.5-5B,Artifacts Severity,3.66,0.65,4.0,3.66 ± 0.65
+CogVideoX1.5-5B,Ease Of Use,2.06,0.76,2.0,2.06 ± 0.76
+CogVideoX1.5-5B,Professional Suitability,2.03,0.78,2.0,2.03 ± 0.78
+CogVideoX1.5-5B,Social Media Suitability,3.03,0.59,3.0,3.03 ± 0.59
+CogVideoX1.5-5B,Willingness To Pay,2.03,0.97,2.0,2.03 ± 0.97

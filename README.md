@@ -3,7 +3,7 @@
 **Author**: Roan Guilherme Weigert Salgueiro  
 **Date**: January 2026
 
-A comprehensive benchmark study comparing **5 generative AI video models** across local GPU-based (CogVideoX, HunyuanVideo) and cloud API-based (Google Veo 3.1) generation, with rigorous statistical analysis measuring cost, speed, quality, and scalability.
+A comprehensive benchmark study comparing **5 generative AI video models** across local GPU-based (CogVideoX, HunyuanVideo) and cloud API-based (Google Veo 3.1) generation, with rigorous statistical analysis measuring cost, speed, quality, and scalability. Includes a **user perception study** with 32 participants evaluating subjective quality and preferences.
 
 ---
 
@@ -13,6 +13,7 @@ Provide data-driven insights for choosing between local and cloud-based AI video
 - **Cost efficiency**: GPU compute costs vs API pricing
 - **Performance**: Inference speed and throughput
 - **Quality**: CLIP score (text-video alignment) and frame consistency
+- **User perception**: 32-participant study across 10 subjective quality dimensions
 - **Scalability**: Hardware requirements vs cloud availability
 - **Statistical significance**: ANOVA, Tukey HSD, Cohen's d effect sizes
 
@@ -87,6 +88,13 @@ All metrics showed **statistically significant differences** across models (p < 
 - **Methods**: ANOVA, Tukey HSD, Cohen's d effect sizes
 - **Outputs**: Descriptive stats, pairwise comparisons, cost-efficiency rankings
 - **Tools**: Python (pandas, scipy, statsmodels)
+
+### Experiment 5: User Perception Study
+- **Participants**: 32 (diverse demographics)
+- **Models Evaluated**: All 5 models
+- **Metrics**: 10 subjective quality dimensions + preference rankings
+- **Total Ratings**: 1,760 (32 participants × 5 models × 11 metrics)
+- **Key Finding**: User preference ≠ technical performance
 
 ### Standardized Test Prompts
 1. "A person walking in a park on a sunny day"
@@ -179,6 +187,26 @@ Break-even point: ~100 videos
 - 1000 videos: Local saves ~$670 ($80 vs $750)
 ```
 
+### User Perception Insights
+
+**User Preference Rankings (32 participants):**
+1. 🥇 **Google Veo 3.1** (1.81 mean rank, 43.8% first-place votes)
+2. 🥈 **HunyuanVideo-1.5** (1.94 mean rank, 43.8% first-place votes)
+3. 🥉 **CogVideoX1.5-5B** (3.50 mean rank)
+4. **CogVideoX-5b** (3.62 mean rank)
+5. **CogVideoX-2b** (3.97 mean rank)
+
+**Critical Finding**: User preferences **diverge from technical metrics**
+- Users prefer Google Veo 3.1 & HunyuanVideo-1.5 (ease of use, realism)
+- Technical benchmarks favor CogVideoX-5b & CogVideoX1.5-5B (CLIP scores)
+- **Implication**: Perceptual quality matters more than algorithmic metrics
+
+**Top User Satisfaction Drivers:**
+- **Realism**: HunyuanVideo-1.5 (4.72/5) dominates
+- **Ease of Use**: Google Veo 3.1 (4.66/5) significantly outperforms local models (2.06-2.94)
+- **Artifact Sensitivity**: Users highly intolerant of visual artifacts
+- **Willingness to Pay**: Aligns with satisfaction (Veo: 3.91, Hunyuan: 3.31)
+
 ---
 
 ## 📁 Project Structure
@@ -207,12 +235,17 @@ Break-even point: ~100 videos
     ├── README.md             # Analysis documentation
     ├── statistical_analysis.py # Main analysis script
     ├── requirements.txt      # Python dependencies
-    └── output/               # Analysis results
-        ├── descriptive_stats.csv
-        ├── anova_results.csv
-        ├── tukey_posthoc.csv
-        ├── cohens_d_matrix.csv
-        └── cost_efficiency_ranking.csv
+    ├── output/               # Analysis results
+    │   ├── descriptive_stats.csv
+    │   ├── anova_results.csv
+    │   ├── tukey_posthoc.csv
+    │   ├── cohens_d_matrix.csv
+    │   └── cost_efficiency_ranking.csv
+    └── UserResearch/         # User perception study
+        ├── README.md         # Comprehensive user study insights
+        ├── user_perception_study.csv # Raw participant responses (32 participants)
+        ├── user_study_descriptive_stats.csv # Mean ± SD by model
+        └── user_study_preference_rankings.csv # Preference rankings
 ```
 
 ---
@@ -256,7 +289,43 @@ Break-even point: ~100 videos
 
 ---
 
-## 🚀 Quick Start
+## � Visualizations
+
+### Figure 1: Quality Metrics Comparison
+
+![Quality Metrics Comparison](StatisticalAnalysis/Visualization/Quality%20metrics%20comparison.png)
+
+**Figure 1.** Quality metrics comparison: CLIP score (blue) and frame consistency (orange), normalized 0-100 scale. CogVideoX-2b and CogVideoX-5b achieve balanced performance across both dimensions.
+
+This visualization decomposes the quality metrics underlying cost-efficiency calculations, revealing the dual-dimensional nature of video generation quality assessment.
+
+### Figure 2: Inference Time Distributions
+
+![Inference Time Distributions](StatisticalAnalysis/Visualization/Inference%20time%20distributions.png)
+
+**Figure 2.** Inference time distributions (violin plots). Google Veo 3.1 shows highest variability (σ=8.58s) due to API latency. Local models demonstrate consistent performance (σ<2s).
+
+This provides a distributional perspective on inference time variability, complementing the mean values presented in the detailed results.
+
+### Figure 3: Cost-Quality Tradeoff with Pareto Frontier
+
+![Cost-Quality Tradeoff](StatisticalAnalysis/Visualization/Cost-quality%20tradeoff%20with%20Pareto%20frontie.png)
+
+**Figure 3.** Cost-quality tradeoff with Pareto frontier. CogVideoX models on frontier offer optimal efficiency. Bubble size represents video count (n=9 or n=15).
+
+To examine the quality-cost relationship underlying these efficiency scores, this plot shows CLIP score against computational cost, with a Pareto frontier identifying models that maximize quality per dollar spent.
+
+### Figure 4: Cost-Efficiency Rankings
+
+![Cost-Efficiency Rankings](StatisticalAnalysis/Visualization/Cost-efficiency%20rankings%20using%20composite%20metric.png)
+
+**Figure 4.** Cost-efficiency rankings using composite metric (CLIP Score × Frame Consistency / Cost). CogVideoX-2b achieves 198.26, representing 20× higher efficiency than Google Veo 3.1.
+
+The cost-efficiency rankings employ a composite metric combining CLIP score, frame consistency, and computational cost to identify optimal models for budget-constrained deployments.
+
+---
+
+## �🚀 Quick Start
 
 ### Run CogVideoX Experiment (Local GPU)
 ```bash
@@ -319,7 +388,8 @@ This project is provided for academic and research purposes. Please respect the 
 
 ---
 
-**Last Updated**: January 21, 2026  
+**Last Updated**: February 2, 2026  
 **Total Videos Generated**: 63 (45 CogVideoX + 9 Veo + 9 HunyuanVideo)  
 **Experiment Status**: ✅ Complete  
-**Statistical Analysis**: ✅ Complete (ANOVA, Tukey HSD, Cohen's d)
+**Statistical Analysis**: ✅ Complete (ANOVA, Tukey HSD, Cohen's d)  
+**User Perception Study**: ✅ Complete (32 participants, 1,760 ratings)
