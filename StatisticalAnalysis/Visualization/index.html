@@ -130,7 +130,7 @@
         .card {
             background: var(--bg-primary);
             border-radius: 8px;
-            padding: 25px;
+            padding: 16px;
             margin-bottom: 30px;
             box-shadow: var(--shadow);
         }
@@ -139,8 +139,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 2px solid var(--border-color);
         }
         
@@ -158,8 +158,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
-            padding: 10px;
+            margin-top: 8px;
+            padding: 8px;
             background: var(--bg-secondary);
             border-radius: 5px;
         }
@@ -184,7 +184,28 @@
         
         .plot-container {
             width: 100%;
-            min-height: 500px;
+            min-height: 400px;
+        }
+        
+        .figures-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .figures-grid .card {
+            margin-bottom: 0;
+        }
+        
+        .export-ieee-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #28a745;
+        }
+        
+        .card-header .btn-group {
+            display: flex;
+            gap: 8px;
         }
         
         table {
@@ -243,9 +264,10 @@
         @media (max-width: 768px) {
             .container { padding: 10px; }
             h1 { font-size: 22px; }
-            .card { padding: 15px; }
+            .card { padding: 12px; }
             table { font-size: 11px; }
             th, td { padding: 8px; }
+            .figures-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -256,6 +278,7 @@
             <p class="subtitle">Statistical Analysis & Visualizations for IEEE Access Publication</p>
             <div class="controls">
                 <button onclick="toggleDarkMode()">🌓 Toggle Dark Mode</button>
+                <button onclick="exportAllIEEE()" class="export-ieee-btn">📄 Export All IEEE PNGs</button>
                 <button onclick="window.print()" class="secondary">🖨️ Print Page</button>
             </div>
         </header>
@@ -266,10 +289,14 @@
         </div>
         
         <div id="figures" class="content-section active">
+          <div class="figures-grid">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 1: Inference Speed Comparison</h2>
-                    <button class="export-btn" onclick="exportPlot('fig1', 'Figure1_InferenceSpeed')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 1: Inference Time Comparison Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig1', 'Figure1_InferenceSpeed')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig1', 'Figure1_InferenceSpeed_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -281,8 +308,11 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 2: Cost vs Quality Tradeoff (Pareto Frontier)</h2>
-                    <button class="export-btn" onclick="exportPlot('fig2', 'Figure2_CostQuality')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 2: Cost-Quality Trade-off Across Video Generation Models (Pareto Frontier)</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig2', 'Figure2_CostQuality')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig2', 'Figure2_CostQuality_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -294,8 +324,11 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 3: Cost-Efficiency Rankings</h2>
-                    <button class="export-btn" onclick="exportPlot('fig3', 'Figure3_Efficiency')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 3: Comparative Cost-Efficiency Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig3', 'Figure3_Efficiency')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig3', 'Figure3_Efficiency_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -307,8 +340,11 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 4: Quality Metrics Comparison (Grouped Bar)</h2>
-                    <button class="export-btn" onclick="exportPlot('fig4', 'Figure4_QualityMetrics')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 4: Comparative Quality Metrics Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig4', 'Figure4_QualityMetrics')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig4', 'Figure4_QualityMetrics_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -320,8 +356,11 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 5: Inference Time Distribution by Model (Violin Plot)</h2>
-                    <button class="export-btn" onclick="exportPlot('fig5', 'Figure5_TimeDistribution')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 5: Distribution of Inference Time Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig5', 'Figure5_TimeDistribution')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig5', 'Figure5_TimeDistribution_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -333,8 +372,11 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 6: Multi-Dimensional Performance Radar Chart</h2>
-                    <button class="export-btn" onclick="exportPlot('fig6', 'Figure6_RadarChart')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 6: Multi-Metric Performance Comparison of Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig6', 'Figure6_RadarChart')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig6', 'Figure6_RadarChart_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -346,21 +388,35 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 7: Cost-Time-Quality 3D Bubble Chart Projection</h2>
-                    <button class="export-btn" onclick="exportPlot('fig7', 'Figure7_BubbleChart')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 7: Integrated Cost, Time, and Quality Comparison of Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig7', 'Figure7_BubbleChart')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig7', 'Figure7_BubbleChart_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
                     <input type="range" min="8" max="32" value="12" step="1" oninput="updateFontSize('fig7', this.value)">
                     <span id="fig7-size">12</span>
                 </div>
+                <div class="font-controls">
+                    <label>Label Font:</label>
+                    <input type="range" min="8" max="24" value="12" step="1" oninput="updateFigure7LabelSize(this.value)">
+                    <span id="fig7-label-size">12</span>
+                    <label>Label Gap (%):</label>
+                    <input type="range" min="0" max="60" value="12" step="1" oninput="updateFigure7LabelGap(this.value)">
+                    <span id="fig7-label-gap">12</span>
+                </div>
                 <div id="fig7" class="plot-container"></div>
             </div>
             
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Figure 8: Prompt-Specific Performance Heatmap Matrix</h2>
-                    <button class="export-btn" onclick="exportPlot('fig8', 'Figure8_Heatmap')">📥 Export PNG</button>
+                    <h2 class="card-title">Figure 8: Prompt-Specific Performance Heatmap</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig8', 'Figure8_Heatmap')">📥 Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig8', 'Figure8_Heatmap_IEEE')">📄 IEEE PNG</button>
+                    </div>
                 </div>
                 <div class="font-controls">
                     <label>Font Size:</label>
@@ -369,6 +425,7 @@
                 </div>
                 <div id="fig8" class="plot-container"></div>
             </div>
+          </div>
         </div>
         
         <div id="tables" class="content-section">
@@ -435,7 +492,7 @@
                 <div class="table-wrapper">
                     <table id="table6"></table>
                 </div>
-                <p class="footnote">Efficiency Ratio = (CLIP Score × Frame Consistency) / Compute Cost. CogVideoX-2b is 38× more efficient than HunyuanVideo-1.5.</p>
+                <p class="footnote">Efficiency Ratio = (CLIP Score × (1 - Frame Consistency)) / Compute Cost. CogVideoX-2b is 38× more efficient than HunyuanVideo-1.5.</p>
             </div>
             
             <div class="card">
@@ -482,6 +539,11 @@
         };
         
         const prompts = ['person walking park', 'car driving highway', 'cat playing ball'];
+
+        const fig7LabelSettings = {
+            fontSize: 12,
+            gapPercent: 12
+        };
         
         function generatePromptData() {
             const data = [];
@@ -530,12 +592,12 @@
             const layout = {
                 title: '',
                 xaxis: {title: 'Inference Time (seconds)', type: 'log'},
-                yaxis: {title: ''},
-                height: 500,
-                margin: {l: 180, r: 80, t: 80, b: 100},
+                yaxis: {title: '', automargin: true},
+                height: 450,
+                margin: {l: 150, r: 25, t: 35, b: 60},
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
             Plotly.newPlot('fig1', [trace], layout, {responsive: true});
@@ -572,13 +634,13 @@
                 title: '',
                 xaxis: {title: 'Compute Cost (USD)', type: 'log'},
                 yaxis: {title: 'CLIP Score (Quality)'},
-                height: 550,
+                height: 500,
                 showlegend: true,
-                legend: {x: 1.02, y: 1, xanchor: 'left', yanchor: 'top'},
-                margin: {l: 80, r: 200, t: 50, b: 80},
+                legend: {x: 0.02, y: 0.02, xanchor: 'left', yanchor: 'bottom', font: {size: 12}},
+                margin: {l: 60, r: 20, t: 35, b: 60},
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
             Plotly.newPlot('fig2', [...traces, paretoTrace], layout, {responsive: true});
@@ -607,10 +669,13 @@
             
             const layout = {
                 title: '',
-                xaxis: {title: 'Efficiency Score (CLIP × Consistency / Cost)'},
-                yaxis: {title: ''},
-                height: 500,
-                margin: {l: 180, r: 100, t: 80, b: 120},
+                xaxis: {
+                    title: 'Efficiency Score<br>(CLIP × (1 - Consistency) / Cost)',
+                    automargin: true
+                },
+                yaxis: {title: '', automargin: true},
+                height: 450,
+                margin: {l: 145, r: 20, t: 35, b: 70},
                 shapes: [{
                     type: 'line',
                     x0: median, x1: median,
@@ -619,7 +684,7 @@
                 }],
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
             Plotly.newPlot('fig3', [trace], layout, {responsive: true});
@@ -659,15 +724,15 @@
             
             const layout = {
                 title: '',
-                xaxis: {title: 'Model'},
+                xaxis: {title: 'Model', automargin: true},
                 yaxis: {title: 'Normalized Score (0-100)'},
                 barmode: 'group',
-                height: 550,
-                margin: {l: 80, r: 80, t: 80, b: 120},
-                legend: {x: 0.7, y: 0.98},
+                height: 500,
+                margin: {l: 60, r: 20, t: 35, b: 95},
+                legend: {x: 0.6, y: 0.98, font: {size: 13}},
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
             Plotly.newPlot('fig4', [trace1, trace2], layout, {responsive: true});
@@ -697,14 +762,21 @@
             
             const layout = {
                 title: '',
-                xaxis: {title: 'Model'},
-                yaxis: {title: 'Inference Time (seconds)', type: 'log'},
-                height: 600,
-                margin: {l: 80, r: 80, t: 80, b: 120},
+                xaxis: {title: 'Model', tickangle: -15, automargin: true},
+                yaxis: {
+                    title: 'Inference Time (seconds)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [50, 100, 300, 1000, 2000],
+                    ticktext: ['50', '100', '300', '1000', '2000']
+                },
+                height: 540,
+                margin: {l: 65, r: 20, t: 35, b: 120},
                 showlegend: false,
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
             Plotly.newPlot('fig5', traces, layout, {responsive: true});
@@ -742,22 +814,24 @@
                 polar: {
                     radialaxis: {visible: true, range: [0, 1]}
                 },
-                height: 600,
-                margin: {l: 100, r: 200, t: 100, b: 100},
+                height: 550,
+                margin: {l: 55, r: 20, t: 55, b: 55},
                 showlegend: true,
-                legend: {x: 0.85, y: 0.5},
+                legend: {x: 0.02, y: -0.15, orientation: 'h', font: {size: 11}},
                 paper_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
             Plotly.newPlot('fig6', traces, layout, {responsive: true});
         }
         
         function createFigure7() {
-            const traces = modelData.models.map((model, idx) => ({
+            const gapFactor = 1 + (fig7LabelSettings.gapPercent / 100);
+
+            const traces = modelData.models.flatMap((model, idx) => ([{
                 x: [modelData.computeCost.mean[idx]],
                 y: [modelData.inferenceTime.mean[idx]],
-                mode: 'markers+text',
+                mode: 'markers',
                 name: model,
                 marker: {
                     size: (modelData.clipScore.mean[idx] * modelData.frameConsistency.mean[idx]) * 3,
@@ -767,18 +841,40 @@
                     colorbar: {title: 'Efficiency'},
                     line: {width: 2, color: 'white'}
                 },
-                text: [model.split(' ')[0]],
-                textposition: 'top center',
-                hovertemplate: '<b>%{text}</b><br>Cost: $%{x:.3f}<br>Time: %{y:.2f}s<br>Quality: ' + 
+                hovertemplate: '<b>' + model + '</b><br>Cost: $%{x:.3f}<br>Time: %{y:.2f}s<br>Quality: ' + 
                               (modelData.clipScore.mean[idx] * modelData.frameConsistency.mean[idx]).toFixed(2) + '<extra></extra>'
-            }));
+            }, {
+                x: [modelData.computeCost.mean[idx]],
+                y: [modelData.inferenceTime.mean[idx] * gapFactor],
+                mode: 'text',
+                name: model,
+                text: [model],
+                textposition: 'middle center',
+                textfont: {size: fig7LabelSettings.fontSize},
+                hoverinfo: 'skip',
+                showlegend: false
+            }]));
             
             const layout = {
                 title: '',
-                xaxis: {title: 'Compute Cost (USD)', type: 'log'},
-                yaxis: {title: 'Inference Time (seconds)', type: 'log'},
-                height: 600,
-                margin: {l: 100, r: 100, t: 100, b: 100},
+                xaxis: {
+                    title: 'Compute Cost (USD)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [0.005, 0.01, 0.03, 0.1, 0.3],
+                    ticktext: ['$0.005', '$0.01', '$0.03', '$0.10', '$0.30']
+                },
+                yaxis: {
+                    title: 'Inference Time (seconds)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [50, 100, 300, 700, 2000],
+                    ticktext: ['50', '100', '300', '700', '2000']
+                },
+                height: 550,
+                margin: {l: 60, r: 20, t: 45, b: 60},
                 showlegend: false,
                 annotations: [{
                     x: Math.log10(0.05),
@@ -788,14 +884,90 @@
                     arrowhead: 2,
                     ax: -40,
                     ay: -40,
-                    font: {size: 14, color: 'green'}
+                    font: {size: 16, color: 'green'}
                 }],
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 12}
+                font: {family: 'Times New Roman, Times, serif', size: 16}
             };
             
-            Plotly.newPlot('fig7', traces, layout, {responsive: true});
+            Plotly.newPlot('fig7', traces, layout, {responsive: true}).then(() => {
+                adaptFigure7Labels();
+            });
+        }
+
+        function getFigure7LabelTraceIndices() {
+            const figElement = document.getElementById('fig7');
+            if (!figElement || !figElement.data) {
+                return [];
+            }
+
+            const indices = [];
+            figElement.data.forEach((trace, idx) => {
+                if (trace.mode === 'text') {
+                    indices.push(idx);
+                }
+            });
+
+            return indices;
+        }
+
+        function updateFigure7LabelSize(size) {
+            fig7LabelSettings.fontSize = parseInt(size, 10);
+            document.getElementById('fig7-label-size').textContent = size;
+            adaptFigure7Labels();
+        }
+
+        function updateFigure7LabelGap(gap) {
+            fig7LabelSettings.gapPercent = parseInt(gap, 10);
+            document.getElementById('fig7-label-gap').textContent = gap;
+
+            const labelTraceIndices = getFigure7LabelTraceIndices();
+            if (labelTraceIndices.length === 0) {
+                return;
+            }
+
+            const gapFactor = 1 + (fig7LabelSettings.gapPercent / 100);
+            const yUpdate = labelTraceIndices.map((traceIndex, labelIdx) => {
+                const markerTrace = document.getElementById('fig7').data[Math.max(0, traceIndex - 1)];
+                return markerTrace && markerTrace.y ? [markerTrace.y[0] * gapFactor] : [modelData.inferenceTime.mean[labelIdx] * gapFactor];
+            });
+
+            Plotly.restyle('fig7', { y: yUpdate }, labelTraceIndices);
+            adaptFigure7Labels();
+        }
+
+        function adaptFigure7Labels() {
+            const figElement = document.getElementById('fig7');
+            if (!figElement || !figElement.data || figElement.data.length === 0) {
+                return;
+            }
+
+            const width = figElement.clientWidth || 0;
+            const labelTraceIndices = getFigure7LabelTraceIndices();
+
+            if (labelTraceIndices.length === 0) {
+                return;
+            }
+
+            let visible = true;
+            let textSize = fig7LabelSettings.fontSize;
+
+            if (width < 700) {
+                textSize = Math.max(9, fig7LabelSettings.fontSize - 2);
+            }
+
+            if (width < 520) {
+                visible = false;
+            }
+
+            const visibleUpdate = Array(labelTraceIndices.length).fill(visible);
+            const sizeUpdate = Array(labelTraceIndices.length).fill(textSize);
+
+            Plotly.restyle('fig7', {
+                visible: visibleUpdate,
+                'textfont.size': sizeUpdate
+            }, labelTraceIndices);
         }
         
         function createFigure8() {
@@ -814,9 +986,9 @@
                 });
                 
                 heatmapData.push(clipRow);
-                yLabels.push(`${model} (CLIP)`);
+                yLabels.push(`${model} (CLIP Score)`);
                 heatmapData.push(consRow);
-                yLabels.push(`${model} (Cons)`);
+                yLabels.push(`${model} (Frame Consistency)`);
             });
             
             const trace = {
@@ -831,13 +1003,13 @@
             
             const layout = {
                 title: '',
-                xaxis: {title: 'Prompt', side: 'bottom'},
-                yaxis: {title: 'Model × Metric'},
-                height: 700,
-                margin: {l: 250, r: 150, t: 80, b: 150},
+                xaxis: {title: 'Prompt', side: 'bottom', automargin: true},
+                yaxis: {title: 'Model × Metric', automargin: true},
+                height: 550,
+                margin: {l: 185, r: 35, t: 35, b: 80},
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {family: 'Times New Roman, Times, serif', size: 11}
+                font: {family: 'Times New Roman, Times, serif', size: 14}
             };
             
             Plotly.newPlot('fig8', [trace], layout, {responsive: true});
@@ -1012,10 +1184,10 @@
         function createTable7() {
             const table = document.getElementById('table7');
             const specs = [
-                {model: 'CogVideoX-2b', type: 'Local GPU', gpu: 'A100-80GB', mem: '12.24', steps: '50', video: '75f @ 24fps, 720p'},
-                {model: 'CogVideoX-5b', type: 'Local GPU', gpu: 'A100-80GB', mem: '12.00', steps: '50', video: '75f @ 24fps, 720p'},
-                {model: 'CogVideoX1.5-5B', type: 'Local GPU', gpu: 'A100-80GB', mem: '12.49', steps: '50', video: '75f @ 24fps, 720p'},
-                {model: 'Google Veo 3.1', type: 'API', gpu: 'N/A', mem: 'N/A', steps: 'Unknown', video: '75f @ 24fps'},
+                {model: 'CogVideoX-2b', type: 'Local GPU', gpu: 'A100-80GB', mem: '12.24', steps: '50', video: '49f, 720×480'},
+                {model: 'CogVideoX-5b', type: 'Local GPU', gpu: 'A100-80GB', mem: '12.00', steps: '50', video: '49f, 720×480'},
+                {model: 'CogVideoX1.5-5B', type: 'Local GPU', gpu: 'A100-80GB', mem: '12.49', steps: '50', video: '81f, 1360×768'},
+                {model: 'Google Veo 3.1', type: 'API', gpu: 'N/A', mem: 'N/A', steps: 'Unknown', video: '192f @ 8fps, 720p'},
                 {model: 'HunyuanVideo-1.5', type: 'Local GPU', gpu: 'A100-80GB', mem: '39.08', steps: '50', video: '75f @ 24fps, 720p'}
             ];
             
@@ -1067,6 +1239,10 @@
             
             event.target.classList.add('active');
             document.getElementById(tab).classList.add('active');
+
+            if (tab === 'figures') {
+                setTimeout(adaptFigure7Labels, 100);
+            }
         }
         
         function toggleDarkMode() {
@@ -1085,15 +1261,110 @@
         }
         
         function exportPlot(id, filename) {
-            const currentLayout = document.getElementById(id).layout;
-            const currentHeight = currentLayout.height || 600;
-            
-            Plotly.downloadImage(id, {
+            const plotElement = document.getElementById(id);
+            const rect = plotElement.getBoundingClientRect();
+            const width = Math.max(1, Math.round(rect.width));
+            const height = Math.max(1, Math.round(rect.height));
+
+            Plotly.downloadImage(plotElement, {
                 format: 'png',
-                width: 1600,
-                height: Math.max(currentHeight * 1.2, 1000),
+                width: width,
+                height: height,
                 filename: filename,
-                scale: 2
+                scale: 1
+            });
+        }
+        
+        const ieeePreset = {
+            width: 525,
+            height: 700,
+            scale: 2,
+            font: {family: 'Times New Roman, Times, serif', size: 20},
+            axisTitleSize: 22,
+            tickSize: 18,
+            legendSize: 16,
+            margins: {
+                'fig1': {l: 210, r: 60, t: 40, b: 70},
+                'fig2': {l: 70, r: 40, t: 40, b: 70},
+                'fig3': {l: 210, r: 80, t: 40, b: 80},
+                'fig4': {l: 60, r: 30, t: 40, b: 120},
+                'fig5': {l: 70, r: 30, t: 40, b: 120},
+                'fig6': {l: 60, r: 30, t: 60, b: 100},
+                'fig7': {l: 70, r: 30, t: 50, b: 70},
+                'fig8': {l: 230, r: 70, t: 40, b: 110}
+            },
+            heights: {
+                'fig1': 650, 'fig2': 700, 'fig3': 650, 'fig4': 700,
+                'fig5': 700, 'fig6': 750, 'fig7': 700, 'fig8': 750
+            }
+        };
+        
+        function exportForIEEE(id, filename) {
+            const el = document.getElementById(id);
+            const origLayout = JSON.parse(JSON.stringify(el.layout));
+            
+            const margin = ieeePreset.margins[id];
+            const height = ieeePreset.heights[id];
+            
+            const ieeeLayout = {
+                font: ieeePreset.font,
+                'xaxis.title.font.size': ieeePreset.axisTitleSize,
+                'yaxis.title.font.size': ieeePreset.axisTitleSize,
+                'xaxis.tickfont.size': ieeePreset.tickSize,
+                'yaxis.tickfont.size': ieeePreset.tickSize,
+                'legend.font.size': ieeePreset.legendSize,
+                paper_bgcolor: '#ffffff',
+                plot_bgcolor: '#ffffff',
+                'margin.l': margin.l,
+                'margin.r': margin.r,
+                'margin.t': margin.t,
+                'margin.b': margin.b
+            };
+            
+            if (id === 'fig6') {
+                ieeeLayout['polar.radialaxis.tickfont.size'] = ieeePreset.tickSize;
+                ieeeLayout['polar.angularaxis.tickfont.size'] = ieeePreset.tickSize;
+                ieeeLayout['polar.bgcolor'] = '#ffffff';
+            }
+            
+            Plotly.relayout(id, ieeeLayout).then(() => {
+                return Plotly.downloadImage(id, {
+                    format: 'png',
+                    width: ieeePreset.width,
+                    height: height,
+                    filename: filename,
+                    scale: ieeePreset.scale
+                });
+            }).then(() => {
+                const restore = {
+                    font: origLayout.font,
+                    paper_bgcolor: origLayout.paper_bgcolor,
+                    plot_bgcolor: origLayout.plot_bgcolor,
+                    'margin.l': origLayout.margin.l,
+                    'margin.r': origLayout.margin.r,
+                    'margin.t': origLayout.margin.t,
+                    'margin.b': origLayout.margin.b
+                };
+                return Plotly.relayout(id, restore);
+            });
+        }
+        
+        function exportAllIEEE() {
+            const figures = [
+                {id: 'fig1', name: 'Figure1_InferenceSpeed_IEEE'},
+                {id: 'fig2', name: 'Figure2_CostQuality_IEEE'},
+                {id: 'fig3', name: 'Figure3_Efficiency_IEEE'},
+                {id: 'fig4', name: 'Figure4_QualityMetrics_IEEE'},
+                {id: 'fig5', name: 'Figure5_TimeDistribution_IEEE'},
+                {id: 'fig6', name: 'Figure6_RadarChart_IEEE'},
+                {id: 'fig7', name: 'Figure7_BubbleChart_IEEE'},
+                {id: 'fig8', name: 'Figure8_Heatmap_IEEE'}
+            ];
+            
+            let delay = 0;
+            figures.forEach(fig => {
+                setTimeout(() => exportForIEEE(fig.id, fig.name), delay);
+                delay += 1500;
             });
         }
         
@@ -1124,16 +1395,16 @@
             
             document.getElementById(figId + '-size').textContent = size;
             
-            const marginMultiplier = fontSize / 12;
+            const marginMultiplier = fontSize / 16;
             const baseMargins = {
-                'fig1': {l: 180, r: 80, t: 80, b: 100},
-                'fig2': {l: 80, r: 200, t: 50, b: 80},
-                'fig3': {l: 180, r: 100, t: 80, b: 120},
-                'fig4': {l: 80, r: 80, t: 80, b: 120},
-                'fig5': {l: 80, r: 80, t: 80, b: 120},
-                'fig6': {l: 100, r: 200, t: 100, b: 100},
-                'fig7': {l: 100, r: 100, t: 100, b: 100},
-                'fig8': {l: 250, r: 150, t: 80, b: 150}
+                'fig1': {l: 150, r: 25, t: 35, b: 60},
+                'fig2': {l: 60, r: 20, t: 35, b: 60},
+                'fig3': {l: 145, r: 20, t: 35, b: 70},
+                'fig4': {l: 60, r: 20, t: 35, b: 95},
+                'fig5': {l: 65, r: 20, t: 35, b: 120},
+                'fig6': {l: 55, r: 20, t: 55, b: 55},
+                'fig7': {l: 60, r: 20, t: 45, b: 60},
+                'fig8': {l: 185, r: 35, t: 35, b: 80}
             };
             
             const baseMargin = baseMargins[figId];
@@ -1156,9 +1427,17 @@
             }
             
             if (figId === 'fig7') {
-                const annotations = Plotly.Graphs[figId].layout.annotations;
+                const figElement = document.getElementById(figId);
+                const annotations = figElement && figElement.layout ? figElement.layout.annotations : null;
                 if (annotations && annotations.length > 0) {
                     update['annotations[0].font.size'] = fontSize + 2;
+                }
+
+                const labelTraceIndices = getFigure7LabelTraceIndices();
+                if (labelTraceIndices.length > 0) {
+                    const labelSize = Math.max(8, fontSize - 2);
+                    const sizes = Array(labelTraceIndices.length).fill(labelSize);
+                    Plotly.restyle(figId, {'textfont.size': sizes}, labelTraceIndices);
                 }
             }
             
@@ -1174,6 +1453,9 @@
             createFigure6();
             createFigure7();
             createFigure8();
+
+            setTimeout(adaptFigure7Labels, 100);
+            window.addEventListener('resize', adaptFigure7Labels);
             
             createTable1();
             createTable2();

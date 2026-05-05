@@ -653,7 +653,7 @@ def calculate_statistics():
         
         avg_cost = model_df['compute_cost_usd'].mean()
         
-        # New cost-efficiency formula: (CLIP × Consistency) / (Time × Cost)
+        # Cost-efficiency formula: (CLIP × (1 - Consistency)) / (Time × Cost)
         # Higher quality + lower cost = better efficiency
         if avg_time > 0 and avg_cost > 0:
             cost_efficiency = (avg_clip * avg_consistency) / (avg_time * avg_cost)

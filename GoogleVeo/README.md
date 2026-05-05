@@ -15,7 +15,7 @@ This experiment evaluates Google Veo 3.1 video generation capabilities using the
 
 ### Performance Metrics
 - **Average Inference Time**: 61.73 ± 8.58 seconds per video
-- **CLIP Score**: 28.3 ± 3.8 (text-video alignment, 0-100 scale)
+- **CLIP Score**: 28.34 ± 3.76 (text-video alignment, 0-100 scale)
 - **Frame Consistency**: 0.262 ± 0.103 (motion smoothness)
 - **Total Cost**: $6.75 ($0.75 per 5-second video)
 - **Model**: `veo-3.1-generate-preview` via Gemini API
@@ -186,7 +186,7 @@ python experiment_veo.py
 
 ### Expected Runtime
 
-- **Per video**: 53-74 seconds (average: 59.61s)
+- **Per video**: 53-74 seconds (average: 61.73s)
   - API call initiation: ~1 second
   - Video generation (polling): 50-70 seconds
   - Download + processing: 1-2 seconds
@@ -299,7 +299,7 @@ total_cost = video_duration * cost_per_second  # $0.75 per video
 - **Memory**: 0.0 GB (cloud-hosted vs local GPU)
 - **Duration**: 5 seconds (vs 10 seconds for CogVideoX)
 - **Resolution**: 720p output (192 frames at 8 FPS)
-- **Inference**: Cloud API (59.6s avg) vs Local GPU
+- **Inference**: Cloud API (61.73s avg) vs Local GPU
 
 ### Merging Results
 
@@ -413,7 +413,7 @@ Ensure sufficient space for:
 ## 📝 Key Findings
 
 ### Performance
-- **Generation Speed**: 59.61 ± 7.54 seconds per video
+- **Generation Speed**: 61.73 ± 8.58 seconds per video
 - **Consistency**: Prompt 3 (cat with ball) showed highest consistency (0.364)
 - **Variability**: Prompt 1 (person walking) had most variation in consistency (0.165-0.333)
 
@@ -425,14 +425,14 @@ Ensure sufficient space for:
 ### Quality Observations
 - **Frame Rate**: 8 FPS (192 frames per 5-second video)
 - **Resolution**: 720p output
-- **Motion Smoothness**: Average consistency of 0.217 (good temporal coherence)
+- **Motion Smoothness**: Average consistency of 0.262 (good temporal coherence)
 
 ## 📊 Integration with Research Paper
 
 This experiment provides direct comparison data for:
 - **Cost-efficiency**: $0.75/video (cloud) vs local GPU costs
 - **Quality**: Frame consistency metrics vs CogVideoX models
-- **Speed**: 59.6s average (cloud API) vs local inference time
+- **Speed**: 61.73s average (cloud API) vs local inference time
 - **Scalability**: Cloud-based (unlimited) vs local resource constraints
 
 ### Analysis Ready

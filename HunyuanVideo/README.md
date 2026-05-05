@@ -169,7 +169,7 @@ The benchmark runs the model through a standardized test suite:
 
 #### Cost-Efficiency Formula
 ```
-Cost-Efficiency = (CLIP Score × Frame Consistency) / (Time × Cost)
+Cost-Efficiency = (CLIP Score × (1 - Frame Consistency)) / (Time × Cost)
 ```
 Higher values indicate better quality per computational cost.
 

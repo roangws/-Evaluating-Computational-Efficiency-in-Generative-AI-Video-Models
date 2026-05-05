@@ -1,7 +1,8 @@
 # Cost-Efficiency Metrics: Evaluating Computational and Resource Efficiency in Generative AI Video Models
 
 **Author**: Roan Guilherme Weigert Salgueiro  
-**Date**: January 2026
+**Created**: January 2026  
+**Last Updated**: May 2026
 
 A comprehensive benchmark study comparing **5 generative AI video models** across local GPU-based (CogVideoX, HunyuanVideo) and cloud API-based (Google Veo 3.1) generation, with rigorous statistical analysis measuring cost, speed, quality, and scalability. Includes a **user perception study** with 32 participants evaluating subjective quality and preferences.
 
@@ -319,14 +320,14 @@ Break-even point: ~100 videos
 
 ### Cost-Efficiency Rankings
 
-*Efficiency Score = (CLIP Score × Frame Consistency) / Compute Cost*
+*Efficiency Score = (CLIP Score × (1 - Frame Consistency)) / Compute Cost*
 
 | Rank | Model | Efficiency Score | Quality Score | Cost |
 |------|-------|------------------|---------------|------|
 | 🥇 1 | CogVideoX-2b | 198.26 | 16.76 | $0.085 |
 | 🥈 2 | CogVideoX-5b | 90.45 | 18.12 | $0.200 |
-| 🥉 3 | CogVideoX1.5-5B | 23.76 | 13.74 | $0.578 |
-| 4 | Google Veo 3.1 | 9.92 | 7.43 | $0.750 |
+| 🥉 3 | CogVideoX1.5-5B | 23.76 | 13.73 | $0.578 |
+| 4 | Google Veo 3.1 | 9.92 | 7.44 | $0.750 |
 | 5 | HunyuanVideo-1.5 | 5.21 | 7.58 | $1.454 |
 
 ---
@@ -361,7 +362,7 @@ To examine the quality-cost relationship underlying these efficiency scores, thi
 
 ![Cost-Efficiency Rankings](StatisticalAnalysis/Visualization/Cost-efficiency%20rankings%20using%20composite%20metric.png)
 
-**Figure 4.** Cost-efficiency rankings using composite metric (CLIP Score × Frame Consistency / Cost). CogVideoX-2b achieves 198.26, representing 20× higher efficiency than Google Veo 3.1.
+**Figure 4.** Cost-efficiency rankings using composite metric (CLIP Score × (1 - Frame Consistency) / Cost). CogVideoX-2b achieves 198.26, representing 20× higher efficiency than Google Veo 3.1.
 
 The cost-efficiency rankings employ a composite metric combining CLIP score, frame consistency, and computational cost to identify optimal models for budget-constrained deployments.
 
@@ -430,7 +431,7 @@ This project is provided for academic and research purposes. Please respect the 
 
 ---
 
-**Last Updated**: February 2, 2026  
+**Last Updated**: May 2026  
 **Total Videos Generated**: 63 (45 CogVideoX + 9 Veo + 9 HunyuanVideo)  
 **Experiment Status**: ✅ Complete  
 **Statistical Analysis**: ✅ Complete (ANOVA, Tukey HSD, Cohen's d)  

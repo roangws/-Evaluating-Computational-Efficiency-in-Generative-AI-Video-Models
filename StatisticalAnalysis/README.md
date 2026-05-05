@@ -79,7 +79,7 @@ Most metrics showed **statistically significant differences** across models:
 | 4 | Google Veo 3.1 | 9.92 |
 | 5 | HunyuanVideo-1.5 | 5.21 |
 
-*Efficiency Score = (CLIP Score × Frame Consistency) / Compute Cost*
+*Efficiency Score = (CLIP Score × (1 - Frame Consistency)) / Compute Cost*
 
 ---
 
@@ -113,7 +113,7 @@ To examine the quality-cost relationship underlying these efficiency scores, thi
 
 ![Cost-Efficiency Rankings](Visualization/Cost-efficiency%20rankings%20using%20composite%20metric.png)
 
-**Figure 4.** Cost-efficiency rankings using composite metric (CLIP Score × Frame Consistency / Cost). CogVideoX-2b achieves 198.26, representing 20× higher efficiency than Google Veo 3.1.
+**Figure 4.** Cost-efficiency rankings using composite metric (CLIP Score × (1 - Frame Consistency) / Cost). CogVideoX-2b achieves 198.26, representing 20× higher efficiency than Google Veo 3.1.
 
 The cost-efficiency rankings employ a composite metric combining CLIP score, frame consistency, and computational cost to identify optimal models for budget-constrained deployments.
 

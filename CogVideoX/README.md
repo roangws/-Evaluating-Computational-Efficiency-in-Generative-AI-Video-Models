@@ -166,21 +166,21 @@ Click on any image to view the full video file. Showing first 3 runs for each mo
         <img src="output_frames/CogVideoX-2b/prompt_2/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      CLIP: 29.39 | Consistency: 0.911
+      CLIP: 30.87 | Consistency: 0.928
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX-2b/prompt_2/run_2.mp4">
         <img src="output_frames/CogVideoX-2b/prompt_2/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      CLIP: 30.67 | Consistency: 0.844
+      CLIP: 31.73 | Consistency: 0.655
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX-2b/prompt_2/run_3.mp4">
         <img src="output_frames/CogVideoX-2b/prompt_2/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      CLIP: 30.86 | Consistency: 0.588
+      CLIP: 32.18 | Consistency: 0.517
     </td>
   </tr>
 </table>
@@ -194,21 +194,21 @@ Click on any image to view the full video file. Showing first 3 runs for each mo
         <img src="output_frames/CogVideoX-2b/prompt_3/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      CLIP: 30.29 | Consistency: 0.317
+      CLIP: 29.70 | Consistency: 0.544
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX-2b/prompt_3/run_2.mp4">
         <img src="output_frames/CogVideoX-2b/prompt_3/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      CLIP: 31.60 | Consistency: 0.426
+      CLIP: 27.73 | Consistency: 0.453
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX-2b/prompt_3/run_3.mp4">
         <img src="output_frames/CogVideoX-2b/prompt_3/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      CLIP: 31.35 | Consistency: 0.367
+      CLIP: 31.09 | Consistency: 0.394
     </td>
   </tr>
 </table>
@@ -224,21 +224,21 @@ Click on any image to view the full video file. Showing first 3 runs for each mo
         <img src="output_frames/CogVideoX1.5-5B/prompt_1/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      CLIP: 32.91 | Consistency: 0.426
+      CLIP: 32.21 | Consistency: 0.268
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX1.5-5B/prompt_1/run_2.mp4">
         <img src="output_frames/CogVideoX1.5-5B/prompt_1/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      CLIP: 31.60 | Consistency: 0.421
+      CLIP: 31.15 | Consistency: 0.301
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX1.5-5B/prompt_1/run_3.mp4">
         <img src="output_frames/CogVideoX1.5-5B/prompt_1/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      CLIP: 32.55 | Consistency: 0.410
+      CLIP: 30.92 | Consistency: 0.381
     </td>
   </tr>
 </table>
@@ -252,21 +252,21 @@ Click on any image to view the full video file. Showing first 3 runs for each mo
         <img src="output_frames/CogVideoX1.5-5B/prompt_2/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      CLIP: 31.34 | Consistency: 0.473
+      CLIP: 34.27 | Consistency: 0.515
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX1.5-5B/prompt_2/run_2.mp4">
         <img src="output_frames/CogVideoX1.5-5B/prompt_2/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      CLIP: 31.53 | Consistency: 0.508
+      CLIP: 32.37 | Consistency: 0.428
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX1.5-5B/prompt_2/run_3.mp4">
         <img src="output_frames/CogVideoX1.5-5B/prompt_2/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      CLIP: 32.41 | Consistency: 0.434
+      CLIP: 31.48 | Consistency: 0.441
     </td>
   </tr>
 </table>
@@ -280,21 +280,21 @@ Click on any image to view the full video file. Showing first 3 runs for each mo
         <img src="output_frames/CogVideoX1.5-5B/prompt_3/run_1_middle_frame.jpg" width="250px" alt="Run 1"/>
       </a><br/>
       <b>Run 1</b><br/>
-      CLIP: 33.96 | Consistency: 0.381
+      CLIP: 35.12 | Consistency: 0.431
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX1.5-5B/prompt_3/run_2.mp4">
         <img src="output_frames/CogVideoX1.5-5B/prompt_3/run_2_middle_frame.jpg" width="250px" alt="Run 2"/>
       </a><br/>
       <b>Run 2</b><br/>
-      CLIP: 35.22 | Consistency: 0.427
+      CLIP: 33.41 | Consistency: 0.422
     </td>
     <td align="center">
       <a href="output_videos/CogVideoX1.5-5B/prompt_3/run_3.mp4">
         <img src="output_frames/CogVideoX1.5-5B/prompt_3/run_3_middle_frame.jpg" width="250px" alt="Run 3"/>
       </a><br/>
       <b>Run 3</b><br/>
-      CLIP: 34.14 | Consistency: 0.430
+      CLIP: 25.83 | Consistency: 0.652
     </td>
   </tr>
 </table>
@@ -340,7 +340,7 @@ The benchmark runs each model through a standardized test suite:
 
 #### Cost-Efficiency Formula
 ```
-Cost-Efficiency = (CLIP Score × Frame Consistency) / (Time × Cost)
+Cost-Efficiency = (CLIP Score × (1 - Frame Consistency)) / (Time × Cost)
 ```
 Higher values indicate better quality per computational cost.
 

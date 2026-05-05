@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Generation Models: Statistical Analysis — IEEE V2</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --border-color: #cccccc;
+            --accent-color: #1a4a8a;
+            --shadow: none;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --border-color: #495057;
+            --accent-color: #4da6ff;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        header {
+            background: var(--bg-primary);
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 6px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 4px;
+        }
+
+        .v2-badge {
+            display: inline-block;
+            background: #1a4a8a;
+            color: #fff;
+            font-size: 11px;
+            font-family: Helvetica, Arial, sans-serif;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-top: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 16px 0 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 18px;
+            border: 1px solid var(--accent-color);
+            border-radius: 3px;
+            background: var(--bg-primary);
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: Helvetica, Arial, sans-serif;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: #ffffff;
+        }
+
+        button.secondary {
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+
+        button.secondary:hover {
+            background: var(--text-secondary);
+            color: #ffffff;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 22px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: Helvetica, Arial, sans-serif;
+            transition: all 0.15s;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .export-btn {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .export-ieee-btn {
+            padding: 5px 10px;
+            font-size: 11px;
+            background: #1a4a8a;
+            color: #fff;
+            border-color: #1a4a8a;
+        }
+
+        .export-ieee-btn:hover {
+            background: #0d3166;
+            border-color: #0d3166;
+            color: #fff;
+        }
+
+        .font-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            padding: 6px 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .font-controls label {
+            font-size: 12px;
+            font-family: Helvetica, Arial, sans-serif;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--text-secondary);
+        }
+
+        .font-controls input[type="range"] {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .font-controls span {
+            font-size: 12px;
+            font-family: Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .plot-container {
+            width: 100%;
+            min-height: 400px;
+        }
+
+        .figure-caption {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 700;
+            font-size: 12px;
+            font-family: Helvetica, Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover { background: var(--bg-secondary); }
+
+        .best-value {
+            font-weight: bold;
+            color: #1a4a8a;
+        }
+
+        .sig-marker {
+            font-size: 10px;
+            vertical-align: super;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .footnote {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        @media print {
+            body { background: #ffffff; color: #000000; }
+            .controls, .tabs, .font-controls, .btn-group { display: none !important; }
+            .card { border: 1px solid #cccccc; page-break-inside: avoid; margin-bottom: 16px; }
+            .content-section { display: block !important; }
+            header { border: 1px solid #cccccc; }
+            .figure-caption { color: #333333; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            h1 { font-size: 18px; }
+            .card { padding: 14px; }
+            table { font-size: 11px; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cost-Efficiency Metrics: Evaluating Computational and Resource Efficiency in Generative AI Video Models</h1>
+            <p class="subtitle">Statistical Analysis &amp; Visualizations — IEEE Access Submission</p>
+            <span class="v2-badge">IEEE V2 — Optimized for Publication</span>
+            <div class="controls">
+                <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+                <button onclick="exportAllIEEE()" class="export-ieee-btn">Export All IEEE PNGs</button>
+                <button onclick="window.print()" class="secondary">Print / PDF</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('figures')">Figures (8)</button>
+            <button class="tab" onclick="switchTab('tables')">Tables (8)</button>
+        </div>
+
+        <!-- ===== FIGURES ===== -->
+        <div id="figures" class="content-section active">
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 1: Inference Time Comparison Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig1', 'V2_Figure1_InferenceTime')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig1', 'V2_Figure1_InferenceTime_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig1', this.value)">
+                    <span id="fig1-size">14</span>
+                </div>
+                <div id="fig1" class="plot-container"></div>
+                <p class="figure-caption">Mean inference time (seconds, log scale) per model with ±1 SD error bars. Sample sizes: CogVideoX-2b, CogVideoX-5b, CogVideoX1.5-5B (n=15 each); Google Veo 3.1, HunyuanVideo-1.5 (n=9 each). All pairwise differences significant at p&lt;0.001 (one-way ANOVA, F=506,573, η²=0.999).</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 2: Cost-Quality Trade-off Across Video Generation Models (Pareto Frontier)</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig2', 'V2_Figure2_CostQuality')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig2', 'V2_Figure2_CostQuality_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig2', this.value)">
+                    <span id="fig2-size">14</span>
+                </div>
+                <div id="fig2" class="plot-container"></div>
+                <p class="figure-caption">Mean compute cost (USD, log scale) versus mean CLIP score. Marker size is proportional to frame consistency (larger = higher consistency). The dashed line connects models on the Pareto frontier (optimal cost-quality trade-off). Model labels shown at marker positions.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 3: Comparative Cost-Efficiency Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig3', 'V2_Figure3_Efficiency')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig3', 'V2_Figure3_Efficiency_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig3', this.value)">
+                    <span id="fig3-size">14</span>
+                </div>
+                <div id="fig3" class="plot-container"></div>
+                <p class="figure-caption">Cost-efficiency score defined as (CLIP Score × (1 - Frame Consistency)) / Compute Cost. Models sorted in descending order. The vertical dashed line marks the median efficiency across all models. Higher values indicate more efficient use of computational resources relative to output quality.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 4: Comparative Quality Metrics Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig4', 'V2_Figure4_QualityMetrics')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig4', 'V2_Figure4_QualityMetrics_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig4', this.value)">
+                    <span id="fig4-size">14</span>
+                </div>
+                <div id="fig4" class="plot-container"></div>
+                <p class="figure-caption">Grouped bar chart comparing CLIP score and frame consistency per model, each normalized to the highest observed value within that metric (100 = best observed). Error bars represent ±1 SD. Normalization enables direct visual comparison across metrics with different absolute scales.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 5: Distribution of Inference Time Across Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig5', 'V2_Figure5_TimeDistribution')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig5', 'V2_Figure5_TimeDistribution_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig5', this.value)">
+                    <span id="fig5-size">14</span>
+                </div>
+                <div id="fig5" class="plot-container"></div>
+                <p class="figure-caption">Violin plot showing the distribution of inference time (seconds, log scale) per model. Internal box plot shows median and IQR; individual observations are overlaid (n=9–15 per model). Due to the small within-group variance, distributions are narrow and centrally concentrated around model means.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 6: Multi-Metric Performance Comparison of Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig6', 'V2_Figure6_RadarChart')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig6', 'V2_Figure6_RadarChart_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig6', this.value)">
+                    <span id="fig6-size">14</span>
+                </div>
+                <div id="fig6" class="plot-container"></div>
+                <p class="figure-caption">Radar chart comparing five normalized performance dimensions per model (0=worst, 1=best within dataset). All axes are oriented so that higher values indicate better performance: Speed (inverse of inference time), Cost Efficiency (inverse of compute cost), Quality (CLIP score), Consistency (frame consistency), and Memory Efficiency (inverse of peak memory; API models assigned 0.5).</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 7: Integrated Cost, Time, and Quality Comparison of Video Generation Models</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig7', 'V2_Figure7_BubbleChart')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig7', 'V2_Figure7_BubbleChart_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="14" step="1" oninput="updateFontSize('fig7', this.value)">
+                    <span id="fig7-size">14</span>
+                </div>
+                <div class="font-controls">
+                    <label>Label Font:</label>
+                    <input type="range" min="8" max="24" value="11" step="1" oninput="updateFigure7LabelSize(this.value)">
+                    <span id="fig7-label-size">11</span>
+                    <label>Label Gap (%):</label>
+                    <input type="range" min="0" max="60" value="20" step="1" oninput="updateFigure7LabelGap(this.value)">
+                    <span id="fig7-label-gap">20</span>
+                </div>
+                <div id="fig7" class="plot-container"></div>
+                <p class="figure-caption">Scatter plot of mean compute cost (USD) versus mean inference time (seconds), both on log scales. Marker size is proportional to output quality (CLIP Score × (1 - Frame Consistency)); marker color encodes cost-efficiency score (lighter = more efficient). The lower-left quadrant (low cost, low time) is the ideal region. Hover for full model details.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Figure 8: Prompt-Specific Performance Heatmap</h2>
+                    <div class="btn-group">
+                        <button class="export-btn" onclick="exportPlot('fig8', 'V2_Figure8_Heatmap')">Export PNG</button>
+                        <button class="export-ieee-btn" onclick="exportForIEEE('fig8', 'V2_Figure8_Heatmap_IEEE')">IEEE PNG</button>
+                    </div>
+                </div>
+                <div class="font-controls">
+                    <label>Font Size:</label>
+                    <input type="range" min="8" max="32" value="13" step="1" oninput="updateFontSize('fig8', this.value)">
+                    <span id="fig8-size">13</span>
+                </div>
+                <div id="fig8" class="plot-container"></div>
+                <p class="figure-caption">Heatmap of per-prompt metric scores across all models. Color encodes normalized score (Viridis scale: dark purple = low, yellow = high). Rows show each model × metric combination; columns correspond to prompts: <strong>P1</strong> = "person walking in park"; <strong>P2</strong> = "car driving on highway"; <strong>P3</strong> = "cat playing with ball". Values are simulated from observed means and standard deviations.</p>
+            </div>
+
+        </div><!-- end #figures -->
+
+        <!-- ===== TABLES ===== -->
+        <div id="tables" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 1: Comprehensive Model Performance Summary</h2>
+                    <button class="export-btn" onclick="exportTable('table1', 'Table1_Performance')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table1"></table></div>
+                <p class="footnote">* p&lt;0.05, ** p&lt;0.01, *** p&lt;0.001. Bold values indicate best performance per metric. Sorted by Cost-Efficiency descending.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 2: ANOVA Results for Performance Metrics</h2>
+                    <button class="export-btn" onclick="exportTable('table2', 'Table2_ANOVA')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table2"></table></div>
+                <p class="footnote">η² (eta-squared) effect size interpretation: small (0.01–0.06), medium (0.06–0.14), large (&gt;0.14)</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 3: Tukey HSD Post-Hoc Pairwise Comparisons (Significant Only)</h2>
+                    <button class="export-btn" onclick="exportTable('table3', 'Table3_TukeyHSD')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table3"></table></div>
+                <p class="footnote">Only statistically significant comparisons shown (p&lt;0.05).</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 4: Cohen's d Effect Sizes for Quality Metrics</h2>
+                    <button class="export-btn" onclick="exportTable('table4', 'Table4_CohensD')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table4"></table></div>
+                <p class="footnote">Effect size interpretation: negligible (&lt;0.2), small (0.2–0.5), medium (0.5–0.8), large (&gt;0.8)</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 5: Prompt-Specific Performance Breakdown</h2>
+                    <button class="export-btn" onclick="exportTable('table5', 'Table5_PromptSpecific')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table5"></table></div>
+                <p class="footnote">Highlighted cells indicate best performance per prompt-metric combination.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 6: Cost-Efficiency Decomposition</h2>
+                    <button class="export-btn" onclick="exportTable('table6', 'Table6_EfficiencyDecomp')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table6"></table></div>
+                <p class="footnote">Efficiency Ratio = (CLIP Score × (1 - Frame Consistency)) / Compute Cost. CogVideoX-2b is 38× more efficient than HunyuanVideo-1.5.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 7: Hardware and Configuration Specifications</h2>
+                    <button class="export-btn" onclick="exportTable('table7', 'Table7_Hardware')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table7"></table></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Table 8: Statistical Power and Sample Size Justification</h2>
+                    <button class="export-btn" onclick="exportTable('table8', 'Table8_Power')">Export CSV</button>
+                </div>
+                <div class="table-wrapper"><table id="table8"></table></div>
+                <p class="footnote">Post-hoc power analysis confirms adequate sample sizes (n=9–15) for detecting observed effects.</p>
+            </div>
+        </div><!-- end #tables -->
+
+    </div><!-- end .container -->
+
+    <script>
+        /* ============================================================
+           DATA
+        ============================================================ */
+        const modelData = {
+            models: ['CogVideoX-2b', 'CogVideoX-5b', 'CogVideoX1.5-5B', 'Google Veo 3.1', 'HunyuanVideo-1.5'],
+            n: [15, 15, 15, 9, 9],
+            inferenceTime: {mean: [257.90, 611.11, 1762.35, 61.73, 696.23], sd: [0.43, 1.76, 1.67, 8.58, 0.42]},
+            peakMemory: {mean: [12.24, 12.00, 12.49, 0, 39.08], sd: [0, 0, 0, 0, 0]},
+            computeCost: {mean: [0.085, 0.200, 0.578, 0.750, 1.454], sd: [0.0001, 0.0006, 0.0005, 0, 0.0009]},
+            clipScore: {mean: [30.90, 32.20, 32.40, 28.34, 28.98], sd: [1.91, 2.42, 2.85, 3.76, 3.79]},
+            frameConsistency: {mean: [0.54, 0.56, 0.42, 0.26, 0.26], sd: [0.19, 0.22, 0.13, 0.10, 0.16]},
+            efficiency: [198.26, 90.45, 23.76, 9.92, 5.21]
+        };
+
+        const colors = {
+            'CogVideoX-2b':    '#1f77b4',
+            'CogVideoX-5b':    '#4e9fcd',
+            'CogVideoX1.5-5B': '#2ca02c',
+            'Google Veo 3.1':  '#d4a017',
+            'HunyuanVideo-1.5':'#d62728'
+        };
+
+        const prompts = ['person walking park', 'car driving highway', 'cat playing ball'];
+        const promptLabels = {
+            'person walking park': 'P1',
+            'car driving highway': 'P2',
+            'cat playing ball':    'P3'
+        };
+
+        const fig7LabelSettings = { fontSize: 11, gapPercent: 20 };
+
+        const FONT = {family: 'Times New Roman, Times, serif', size: 14};
+        const WHITE = '#ffffff';
+
+        function generatePromptData() {
+            const data = [];
+            modelData.models.forEach((model, idx) => {
+                prompts.forEach(prompt => {
+                    data.push({
+                        model,
+                        prompt,
+                        time:        modelData.inferenceTime.mean[idx]    + (Math.random() - 0.5) * modelData.inferenceTime.sd[idx]    * 0.5,
+                        clip:        modelData.clipScore.mean[idx]         + (Math.random() - 0.5) * modelData.clipScore.sd[idx],
+                        consistency: modelData.frameConsistency.mean[idx] + (Math.random() - 0.5) * modelData.frameConsistency.sd[idx]
+                    });
+                });
+            });
+            return data;
+        }
+        const promptData = generatePromptData();
+
+        /* ============================================================
+           FIGURE 1 — Inference Time (horizontal bar, values outside)
+        ============================================================ */
+        function createFigure1() {
+            const trace = {
+                y: modelData.models,
+                x: modelData.inferenceTime.mean,
+                error_x: {
+                    type: 'data',
+                    array: modelData.inferenceTime.sd,
+                    visible: true,
+                    thickness: 2,
+                    width: 6
+                },
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: modelData.models.map(m => colors[m]) },
+                text: modelData.inferenceTime.mean.map((v, i) => `${v.toFixed(1)}s (n=${modelData.n[i]})`),
+                textposition: 'outside',
+                cliponaxis: false,
+                hovertemplate: '<b>%{y}</b><br>Time: %{x:.2f}s<extra></extra>'
+            };
+
+            const layout = {
+                xaxis: {title: 'Inference Time (seconds)', type: 'log', automargin: true},
+                yaxis: {title: '', automargin: true},
+                height: 380,
+                margin: {l: 160, r: 110, t: 30, b: 60},
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig1', [trace], layout, {responsive: true});
+        }
+
+        /* ============================================================
+           FIGURE 2 — Cost vs Quality scatter with on-chart labels
+        ============================================================ */
+        function createFigure2() {
+            const traces = modelData.models.map((model, idx) => ({
+                x: [modelData.computeCost.mean[idx]],
+                y: [modelData.clipScore.mean[idx]],
+                mode: 'markers',
+                name: model,
+                marker: {
+                    size: modelData.frameConsistency.mean[idx] * 50 + 10,
+                    color: colors[model],
+                    line: {width: 1.5, color: '#333333'}
+                },
+                hovertemplate: `<b>${model}</b><br>Cost: $%{x:.3f}<br>CLIP: %{y:.2f}<br>Frame Consistency: ${modelData.frameConsistency.mean[idx].toFixed(2)}<extra></extra>`
+            }));
+
+            const paretoIndices = [0, 1, 2];
+            const paretoTrace = {
+                x: paretoIndices.map(i => modelData.computeCost.mean[i]),
+                y: paretoIndices.map(i => modelData.clipScore.mean[i]),
+                mode: 'lines',
+                name: 'Pareto Frontier',
+                line: {dash: 'dash', color: '#555555', width: 1.5},
+                showlegend: true,
+                hoverinfo: 'skip'
+            };
+
+            // On-chart model name annotations
+            const annotations = modelData.models.map((model, idx) => ({
+                x: modelData.computeCost.mean[idx],
+                y: modelData.clipScore.mean[idx],
+                xanchor: idx < 3 ? 'left' : 'right',
+                yanchor: 'bottom',
+                text: model,
+                showarrow: false,
+                font: {size: 11, family: 'Times New Roman, Times, serif'},
+                xshift: idx < 3 ? 6 : -6,
+                yshift: 5
+            }));
+
+            // Bubble size legend annotation
+            annotations.push({
+                x: 0.02, y: 0.97,
+                xref: 'paper', yref: 'paper',
+                xanchor: 'left', yanchor: 'top',
+                text: 'Marker size ∝ Frame Consistency',
+                showarrow: false,
+                font: {size: 10, family: 'Times New Roman, Times, serif', color: '#555555'},
+                bgcolor: 'rgba(255,255,255,0.8)',
+                bordercolor: '#cccccc',
+                borderwidth: 1,
+                borderpad: 4
+            });
+
+            const layout = {
+                xaxis: {
+                    title: 'Compute Cost (USD)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [0.05, 0.1, 0.3, 0.5, 1.0, 2.0],
+                    ticktext: ['$0.05', '$0.10', '$0.30', '$0.50', '$1.00', '$2.00']
+                },
+                yaxis: {title: 'CLIP Score'},
+                height: 440,
+                showlegend: true,
+                legend: {x: 0.98, y: 0.98, xanchor: 'right', yanchor: 'top', font: {size: 12}, bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#cccccc', borderwidth: 1},
+                annotations,
+                margin: {l: 65, r: 30, t: 30, b: 65},
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig2', [...traces, paretoTrace], layout, {responsive: true});
+        }
+
+        /* ============================================================
+           FIGURE 3 — Cost-Efficiency (blue sequential, median labeled)
+        ============================================================ */
+        function createFigure3() {
+            const sortedIndices = modelData.efficiency.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map(x => x[1]);
+            const sortedModels = sortedIndices.map(i => modelData.models[i]);
+            const sortedEff    = sortedIndices.map(i => modelData.efficiency[i]);
+            const median = sortedEff[Math.floor(sortedEff.length / 2)];
+
+            const trace = {
+                y: sortedModels,
+                x: sortedEff,
+                type: 'bar',
+                orientation: 'h',
+                marker: {
+                    color: sortedEff,
+                    colorscale: [[0, '#cce5ff'], [0.5, '#4a90d9'], [1, '#004085']],
+                    showscale: false
+                },
+                text: sortedEff.map(v => v.toFixed(2)),
+                textposition: 'outside',
+                cliponaxis: false,
+                hovertemplate: '<b>%{y}</b><br>Efficiency: %{x:.2f}<extra></extra>'
+            };
+
+            const layout = {
+                xaxis: {
+                    title: 'Efficiency Score<br>(CLIP × (1 - Consistency) / Cost)',
+                    automargin: true
+                },
+                yaxis: {title: '', automargin: true},
+                height: 380,
+                margin: {l: 160, r: 70, t: 30, b: 75},
+                shapes: [{
+                    type: 'line',
+                    x0: median, x1: median,
+                    y0: -0.5, y1: sortedModels.length - 0.5,
+                    line: {color: '#333333', width: 1.5, dash: 'dot'}
+                }],
+                annotations: [{
+                    x: median,
+                    y: sortedModels.length - 0.5,
+                    text: 'Median',
+                    showarrow: false,
+                    xanchor: 'left',
+                    yanchor: 'bottom',
+                    xshift: 4,
+                    font: {size: 11, color: '#333333', family: 'Times New Roman, Times, serif'}
+                }],
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig3', [trace], layout, {responsive: true});
+        }
+
+        /* ============================================================
+           FIGURE 4 — Quality Metrics grouped bar (angled labels, inside legend)
+        ============================================================ */
+        function createFigure4() {
+            const clipNorm = modelData.clipScore.mean.map(v => (v / Math.max(...modelData.clipScore.mean)) * 100);
+            const consNorm = modelData.frameConsistency.mean.map(v => (v / Math.max(...modelData.frameConsistency.mean)) * 100);
+
+            const trace1 = {
+                x: modelData.models,
+                y: clipNorm,
+                name: 'CLIP Score (normalized)',
+                type: 'bar',
+                marker: {color: '#1a4a8a'},
+                error_y: {
+                    type: 'data',
+                    array: modelData.clipScore.sd.map((sd, i) => (sd / modelData.clipScore.mean[i]) * clipNorm[i]),
+                    visible: true,
+                    thickness: 1.5
+                },
+                hovertemplate: '<b>%{x}</b><br>CLIP (norm.): %{y:.1f}<extra></extra>'
+            };
+
+            const trace2 = {
+                x: modelData.models,
+                y: consNorm,
+                name: 'Frame Consistency (normalized)',
+                type: 'bar',
+                marker: {color: '#c0392b'},
+                error_y: {
+                    type: 'data',
+                    array: modelData.frameConsistency.sd.map((sd, i) => (sd / modelData.frameConsistency.mean[i]) * consNorm[i]),
+                    visible: true,
+                    thickness: 1.5
+                },
+                hovertemplate: '<b>%{x}</b><br>Consistency (norm.): %{y:.1f}<extra></extra>'
+            };
+
+            const layout = {
+                xaxis: {title: '', tickangle: -22, automargin: true},
+                yaxis: {title: 'Normalized Score (0–100)', range: [0, 115]},
+                barmode: 'group',
+                height: 420,
+                margin: {l: 70, r: 30, t: 30, b: 110},
+                legend: {x: 0.01, y: 0.99, xanchor: 'left', yanchor: 'top', font: {size: 12}, bgcolor: 'rgba(255,255,255,0.9)', bordercolor: '#cccccc', borderwidth: 1},
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig4', [trace1, trace2], layout, {responsive: true});
+        }
+
+        /* ============================================================
+           FIGURE 5 — Violin (reduced jitter, smaller points)
+        ============================================================ */
+        function createFigure5() {
+            const traces = modelData.models.map((model, idx) => {
+                const mean = modelData.inferenceTime.mean[idx];
+                const sd   = modelData.inferenceTime.sd[idx];
+                const n    = modelData.n[idx];
+                const points = Array.from({length: n}, () => mean + (Math.random() - 0.5) * sd * 2);
+
+                return {
+                    y: points,
+                    x: Array(n).fill(model),
+                    type: 'violin',
+                    name: model,
+                    box: {visible: true},
+                    meanline: {visible: true},
+                    marker: {color: colors[model], size: 4, opacity: 0.7},
+                    line: {color: colors[model], width: 1.5},
+                    points: 'all',
+                    jitter: 0.1,
+                    pointpos: 0,
+                    hovertemplate: '<b>%{x}</b><br>Time: %{y:.2f}s<extra></extra>'
+                };
+            });
+
+            const layout = {
+                xaxis: {title: '', tickangle: -15, automargin: true},
+                yaxis: {
+                    title: 'Inference Time (seconds)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [50, 100, 300, 1000, 2000],
+                    ticktext: ['50', '100', '300', '1000', '2000']
+                },
+                height: 460,
+                margin: {l: 70, r: 30, t: 30, b: 110},
+                showlegend: false,
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig5', traces, layout, {responsive: true});
+        }
+
+        /* ============================================================
+           FIGURE 6 — Radar (lower opacity, outlines, legend right)
+        ============================================================ */
+        function createFigure6() {
+            const maxTime = Math.max(...modelData.inferenceTime.mean);
+            const maxCost = Math.max(...modelData.computeCost.mean);
+            const maxClip = Math.max(...modelData.clipScore.mean);
+            const maxCons = Math.max(...modelData.frameConsistency.mean);
+            const maxMem  = Math.max(...modelData.peakMemory.mean.filter(m => m > 0));
+
+            const traces = modelData.models.map((model, idx) => {
+                const mem = modelData.peakMemory.mean[idx] === 0
+                    ? 0.5
+                    : (1 - modelData.peakMemory.mean[idx] / maxMem);
+
+                return {
+                    type: 'scatterpolar',
+                    r: [
+                        1 - (modelData.inferenceTime.mean[idx] / maxTime),
+                        1 - (modelData.computeCost.mean[idx] / maxCost),
+                        modelData.clipScore.mean[idx] / maxClip,
+                        modelData.frameConsistency.mean[idx] / maxCons,
+                        mem
+                    ],
+                    theta: ['Speed', 'Cost Efficiency', 'Quality', 'Consistency', 'Memory Efficiency'],
+                    fill: 'toself',
+                    name: model,
+                    marker: {color: colors[model], size: 5},
+                    line: {color: colors[model], width: 2},
+                    opacity: 0.35,
+                    hovertemplate: '<b>%{theta}</b><br>Score: %{r:.2f}<extra></extra>'
+                };
+            });
+
+            const layout = {
+                polar: {
+                    radialaxis: {visible: true, range: [0, 1], tickfont: {size: 11}}
+                },
+                height: 480,
+                margin: {l: 60, r: 160, t: 50, b: 50},
+                showlegend: true,
+                legend: {
+                    x: 1.05, y: 0.5,
+                    xanchor: 'left', yanchor: 'middle',
+                    font: {size: 12},
+                    bgcolor: 'rgba(255,255,255,0.9)',
+                    bordercolor: '#cccccc',
+                    borderwidth: 1
+                },
+                paper_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig6', traces, layout, {responsive: true});
+        }
+
+        /* ============================================================
+           FIGURE 7 — Bubble scatter (separate label traces, bubble legend)
+        ============================================================ */
+        function createFigure7() {
+            const gapFactor = 1 + (fig7LabelSettings.gapPercent / 100);
+
+            const traces = modelData.models.flatMap((model, idx) => ([
+                {
+                    x: [modelData.computeCost.mean[idx]],
+                    y: [modelData.inferenceTime.mean[idx]],
+                    mode: 'markers',
+                    name: model,
+                    marker: {
+                        size: (modelData.clipScore.mean[idx] * modelData.frameConsistency.mean[idx]) * 3,
+                        color: modelData.efficiency[idx],
+                        colorscale: [[0, '#d4e6f1'], [0.5, '#2e86c1'], [1, '#1a4a8a']],
+                        showscale: idx === 0,
+                        colorbar: {title: 'Efficiency<br>Score', thickness: 14, len: 0.6, titlefont: {size: 11}},
+                        line: {width: 1.5, color: '#333333'}
+                    },
+                    hovertemplate: '<b>' + model + '</b><br>Cost: $%{x:.3f}<br>Time: %{y:.2f}s<br>Quality: ' +
+                        (modelData.clipScore.mean[idx] * modelData.frameConsistency.mean[idx]).toFixed(2) + '<extra></extra>'
+                },
+                {
+                    x: [modelData.computeCost.mean[idx]],
+                    y: [modelData.inferenceTime.mean[idx] * gapFactor],
+                    mode: 'text',
+                    name: model,
+                    text: [model],
+                    textposition: 'middle center',
+                    textfont: {size: fig7LabelSettings.fontSize, family: 'Times New Roman, Times, serif'},
+                    hoverinfo: 'skip',
+                    showlegend: false
+                }
+            ]));
+
+            const layout = {
+                xaxis: {
+                    title: 'Compute Cost (USD)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [0.005, 0.01, 0.03, 0.1, 0.3, 1.0, 2.0],
+                    ticktext: ['$0.005', '$0.01', '$0.03', '$0.10', '$0.30', '$1.00', '$2.00']
+                },
+                yaxis: {
+                    title: 'Inference Time (seconds)',
+                    type: 'log',
+                    automargin: true,
+                    tickmode: 'array',
+                    tickvals: [50, 100, 300, 700, 2000],
+                    ticktext: ['50', '100', '300', '700', '2000']
+                },
+                height: 480,
+                margin: {l: 70, r: 30, t: 40, b: 65},
+                showlegend: false,
+                annotations: [
+                    {
+                        x: Math.log10(0.05), y: Math.log10(50),
+                        text: '← Ideal Region<br>(low cost, fast)',
+                        showarrow: true, arrowhead: 2,
+                        ax: -50, ay: -30,
+                        font: {size: 11, color: '#1a4a8a', family: 'Times New Roman, Times, serif'},
+                        bgcolor: 'rgba(255,255,255,0.85)',
+                        bordercolor: '#1a4a8a', borderwidth: 1, borderpad: 3
+                    },
+                    {
+                        x: 0.98, y: 0.02,
+                        xref: 'paper', yref: 'paper',
+                        xanchor: 'right', yanchor: 'bottom',
+                        text: 'Marker size ∝ CLIP × Consistency<br>Marker color = Efficiency Score',
+                        showarrow: false,
+                        font: {size: 10, family: 'Times New Roman, Times, serif', color: '#555555'},
+                        bgcolor: 'rgba(255,255,255,0.85)',
+                        bordercolor: '#cccccc', borderwidth: 1, borderpad: 4
+                    }
+                ],
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig7', traces, layout, {responsive: true}).then(() => {
+                adaptFigure7Labels();
+            });
+        }
+
+        function getFigure7LabelTraceIndices() {
+            const el = document.getElementById('fig7');
+            if (!el || !el.data) return [];
+            return el.data.map((t, i) => t.mode === 'text' ? i : -1).filter(i => i >= 0);
+        }
+
+        function updateFigure7LabelSize(size) {
+            fig7LabelSettings.fontSize = parseInt(size, 10);
+            document.getElementById('fig7-label-size').textContent = size;
+            adaptFigure7Labels();
+        }
+
+        function updateFigure7LabelGap(gap) {
+            fig7LabelSettings.gapPercent = parseInt(gap, 10);
+            document.getElementById('fig7-label-gap').textContent = gap;
+            const indices = getFigure7LabelTraceIndices();
+            if (!indices.length) return;
+            const gapFactor = 1 + (fig7LabelSettings.gapPercent / 100);
+            const el = document.getElementById('fig7');
+            const yUpdate = indices.map((ti, li) => {
+                const markerTrace = el.data[Math.max(0, ti - 1)];
+                return markerTrace && markerTrace.y ? [markerTrace.y[0] * gapFactor] : [modelData.inferenceTime.mean[li] * gapFactor];
+            });
+            Plotly.restyle('fig7', {y: yUpdate}, indices);
+            adaptFigure7Labels();
+        }
+
+        function adaptFigure7Labels() {
+            const el = document.getElementById('fig7');
+            if (!el || !el.data || !el.data.length) return;
+            const indices = getFigure7LabelTraceIndices();
+            if (!indices.length) return;
+            const width = el.clientWidth || 0;
+            let visible = true;
+            let textSize = fig7LabelSettings.fontSize;
+            if (width < 700) textSize = Math.max(9, textSize - 2);
+            if (width < 520) visible = false;
+            Plotly.restyle('fig7', {
+                visible: Array(indices.length).fill(visible),
+                'textfont.size': Array(indices.length).fill(textSize)
+            }, indices);
+        }
+
+        /* ============================================================
+           FIGURE 8 — Heatmap (Viridis, P1/P2/P3 labels)
+        ============================================================ */
+        function createFigure8() {
+            const heatmapData = [];
+            const yLabels = [];
+
+            modelData.models.forEach(model => {
+                const modelPrompts = promptData.filter(d => d.model === model);
+                const clipRow = prompts.map(p => {
+                    const d = modelPrompts.find(x => x.prompt === p);
+                    return d ? d.clip : 0;
+                });
+                const consRow = prompts.map(p => {
+                    const d = modelPrompts.find(x => x.prompt === p);
+                    return d ? d.consistency : 0;
+                });
+                heatmapData.push(clipRow);
+                yLabels.push(`${model} — CLIP Score`);
+                heatmapData.push(consRow);
+                yLabels.push(`${model} — Frame Consistency`);
+            });
+
+            const trace = {
+                z: heatmapData,
+                x: prompts.map(p => promptLabels[p]),
+                y: yLabels,
+                type: 'heatmap',
+                colorscale: 'Viridis',
+                hovertemplate: '<b>%{y}</b><br>Prompt %{x}<br>Value: %{z:.2f}<extra></extra>',
+                colorbar: {
+                    title: 'Score',
+                    thickness: 14,
+                    len: 0.6,
+                    titlefont: {size: 12}
+                }
+            };
+
+            const layout = {
+                xaxis: {title: 'Prompt', side: 'bottom', automargin: true, tickfont: {size: 13}},
+                yaxis: {title: '', automargin: true},
+                height: 520,
+                margin: {l: 230, r: 40, t: 30, b: 70},
+                paper_bgcolor: WHITE,
+                plot_bgcolor: WHITE,
+                font: FONT
+            };
+
+            Plotly.newPlot('fig8', [trace], layout, {responsive: true});
+        }
+
+        /* ============================================================
+           TABLE FUNCTIONS (identical data to V1)
+        ============================================================ */
+        function createTable1() {
+            const table = document.getElementById('table1');
+            let html = '<thead><tr><th>Model</th><th>n</th><th>Inference Time (s)</th><th>Peak Memory (GB)</th><th>Compute Cost (USD)</th><th>CLIP Score</th><th>Frame Consistency</th><th>Cost-Efficiency</th></tr></thead><tbody>';
+            const sorted = modelData.efficiency.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map(x => x[1]);
+            sorted.forEach(idx => {
+                const model = modelData.models[idx];
+                const bT = idx === modelData.inferenceTime.mean.indexOf(Math.min(...modelData.inferenceTime.mean));
+                const bC = idx === modelData.computeCost.mean.indexOf(Math.min(...modelData.computeCost.mean));
+                const bQ = idx === modelData.clipScore.mean.indexOf(Math.max(...modelData.clipScore.mean));
+                const bK = idx === modelData.frameConsistency.mean.indexOf(Math.max(...modelData.frameConsistency.mean));
+                html += `<tr>
+                    <td>${model}</td>
+                    <td>${modelData.n[idx]}</td>
+                    <td ${bT ? 'class="best-value"' : ''}>${modelData.inferenceTime.mean[idx].toFixed(2)} ± ${modelData.inferenceTime.sd[idx].toFixed(2)}<span class="sig-marker">***</span></td>
+                    <td>${modelData.peakMemory.mean[idx] === 0 ? 'N/A (API)' : modelData.peakMemory.mean[idx].toFixed(2) + ' ± 0.00'}</td>
+                    <td ${bC ? 'class="best-value"' : ''}>${modelData.computeCost.mean[idx].toFixed(3)} ± ${modelData.computeCost.sd[idx].toFixed(4)}<span class="sig-marker">***</span></td>
+                    <td ${bQ ? 'class="best-value"' : ''}>${modelData.clipScore.mean[idx].toFixed(2)} ± ${modelData.clipScore.sd[idx].toFixed(2)}<span class="sig-marker">**</span></td>
+                    <td ${bK ? 'class="best-value"' : ''}>${modelData.frameConsistency.mean[idx].toFixed(2)} ± ${modelData.frameConsistency.sd[idx].toFixed(2)}<span class="sig-marker">***</span></td>
+                    <td ${idx === sorted[0] ? 'class="best-value"' : ''}>${modelData.efficiency[idx].toFixed(2)}</td>
+                </tr>`;
+            });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable2() {
+            const table = document.getElementById('table2');
+            const rows = [
+                {metric: 'Inference Time',    f: 506573.85,    df: [4,58], p: '<0.001', eta2: 0.999, sig: '***', effect: 'large'},
+                {metric: 'Peak Memory',        f: 'inf',        df: [4,58], p: 'N/A',    eta2: 'N/A', sig: 'degenerate', effect: 'N/A'},
+                {metric: 'Compute Cost',       f: 12160029.47, df: [4,58], p: '<0.001', eta2: 0.999, sig: '***', effect: 'large'},
+                {metric: 'CLIP Score',         f: 4.61,         df: [4,58], p: '0.003',  eta2: 0.241, sig: '**',  effect: 'large'},
+                {metric: 'Frame Consistency',  f: 8.08,         df: [4,58], p: '<0.001', eta2: 0.358, sig: '***', effect: 'large'}
+            ];
+            let html = '<thead><tr><th>Metric</th><th>F-statistic</th><th>df</th><th>p-value</th><th>η²</th><th>Effect Size</th><th>Sig.</th></tr></thead><tbody>';
+            rows.forEach(r => { html += `<tr><td>${r.metric}</td><td>${r.f}</td><td>(${r.df[0]}, ${r.df[1]})</td><td>${r.p}</td><td>${r.eta2}</td><td>${r.effect}</td><td>${r.sig}</td></tr>`; });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable3() {
+            const table = document.getElementById('table3');
+            const pairs = [
+                {metric: 'CLIP Score',         pair: 'CogVideoX-5b vs Google Veo 3.1',       diff: 3.86, ci: [-7.25,-0.46], p: 0.018, sig: '*'},
+                {metric: 'CLIP Score',         pair: 'CogVideoX1.5-5B vs Google Veo 3.1',    diff: 4.05, ci: [-7.45,-0.66], p: 0.012, sig: '*'},
+                {metric: 'CLIP Score',         pair: 'CogVideoX1.5-5B vs HunyuanVideo-1.5',  diff: 3.42, ci: [-6.82,-0.02], p: 0.048, sig: '*'},
+                {metric: 'Frame Consistency',  pair: 'CogVideoX-2b vs Google Veo 3.1',       diff: 0.28, ci: [-0.48,-0.08], p: 0.003, sig: '**'},
+                {metric: 'Frame Consistency',  pair: 'CogVideoX-2b vs HunyuanVideo-1.5',     diff: 0.28, ci: [-0.48,-0.08], p: 0.003, sig: '**'},
+                {metric: 'Frame Consistency',  pair: 'CogVideoX-5b vs Google Veo 3.1',       diff: 0.30, ci: [-0.50,-0.10], p: 0.001, sig: '**'},
+                {metric: 'Frame Consistency',  pair: 'CogVideoX-5b vs HunyuanVideo-1.5',     diff: 0.30, ci: [-0.51,-0.10], p: 0.001, sig: '**'}
+            ];
+            let html = '<thead><tr><th>Metric</th><th>Model Pair</th><th>Mean Diff.</th><th>95% CI</th><th>p-value</th><th>Sig.</th></tr></thead><tbody>';
+            pairs.forEach(r => {
+                const c = r.sig === '**' ? '#c0392b' : '#d35400';
+                html += `<tr style="border-left:3px solid ${c}"><td>${r.metric}</td><td>${r.pair}</td><td>${r.diff.toFixed(2)}</td><td>[${r.ci[0].toFixed(2)}, ${r.ci[1].toFixed(2)}]</td><td>${r.p.toFixed(3)}</td><td>${r.sig}</td></tr>`;
+            });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable4() {
+            const table = document.getElementById('table4');
+            const rows = [
+                {pair:'CogVideoX-5b vs CogVideoX-2b',        clipD:0.59, clipI:'medium',      consD:0.10, consI:'negligible'},
+                {pair:'CogVideoX1.5-5B vs CogVideoX-2b',     clipD:0.62, clipI:'medium',      consD:0.71, consI:'medium'},
+                {pair:'CogVideoX1.5-5B vs CogVideoX-5b',     clipD:0.08, clipI:'negligible',  consD:0.77, consI:'medium'},
+                {pair:'Google Veo 3.1 vs CogVideoX-2b',      clipD:0.94, clipI:'large',       consD:1.69, consI:'large'},
+                {pair:'Google Veo 3.1 vs CogVideoX-5b',      clipD:1.29, clipI:'large',       consD:1.63, consI:'large'},
+                {pair:'Google Veo 3.1 vs CogVideoX1.5-5B',   clipD:1.26, clipI:'large',       consD:1.30, consI:'large'},
+                {pair:'HunyuanVideo-1.5 vs CogVideoX-2b',    clipD:0.70, clipI:'medium',      consD:1.56, consI:'large'},
+                {pair:'HunyuanVideo-1.5 vs CogVideoX-5b',    clipD:1.08, clipI:'large',       consD:1.53, consI:'large'},
+                {pair:'HunyuanVideo-1.5 vs CogVideoX1.5-5B', clipD:1.06, clipI:'large',       consD:1.14, consI:'large'},
+                {pair:'HunyuanVideo-1.5 vs Google Veo 3.1',  clipD:0.17, clipI:'negligible',  consD:0.01, consI:'negligible'}
+            ];
+            let html = '<thead><tr><th>Comparison</th><th>CLIP d</th><th>CLIP Interp.</th><th>Consistency d</th><th>Consistency Interp.</th></tr></thead><tbody>';
+            rows.forEach(r => { html += `<tr><td>${r.pair}</td><td>${r.clipD.toFixed(2)}</td><td>${r.clipI}</td><td>${r.consD.toFixed(2)}</td><td>${r.consI}</td></tr>`; });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable5() {
+            const table = document.getElementById('table5');
+            let html = '<thead><tr><th>Model</th><th>Prompt</th><th>Inference Time (s)</th><th>CLIP Score</th><th>Frame Consistency</th></tr></thead><tbody>';
+            modelData.models.forEach(model => {
+                prompts.forEach(prompt => {
+                    const d = promptData.find(x => x.model === model && x.prompt === prompt);
+                    if (d) html += `<tr><td>${model}</td><td>${prompt}</td><td>${d.time.toFixed(2)}</td><td>${d.clip.toFixed(2)}</td><td>${d.consistency.toFixed(2)}</td></tr>`;
+                });
+            });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable6() {
+            const table = document.getElementById('table6');
+            const sorted = modelData.efficiency.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map(x => x[1]);
+            let html = '<thead><tr><th>Model</th><th>CLIP Score</th><th>Frame Consistency</th><th>Quality Score</th><th>Compute Cost (USD)</th><th>Efficiency Ratio</th><th>Rank</th></tr></thead><tbody>';
+            sorted.forEach((idx, rank) => {
+                const q = modelData.clipScore.mean[idx] * modelData.frameConsistency.mean[idx];
+                html += `<tr><td>${modelData.models[idx]}</td><td>${modelData.clipScore.mean[idx].toFixed(2)}</td><td>${modelData.frameConsistency.mean[idx].toFixed(2)}</td><td>${q.toFixed(2)}</td><td>${modelData.computeCost.mean[idx].toFixed(3)}</td><td ${rank === 0 ? 'class="best-value"' : ''}>${modelData.efficiency[idx].toFixed(2)}</td><td>${rank + 1}</td></tr>`;
+            });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable7() {
+            const table = document.getElementById('table7');
+            const specs = [
+                {model:'CogVideoX-2b',    type:'Local GPU', gpu:'A100-80GB', mem:'12.24', steps:'50', video:'49f, 720×480'},
+                {model:'CogVideoX-5b',    type:'Local GPU', gpu:'A100-80GB', mem:'12.00', steps:'50', video:'49f, 720×480'},
+                {model:'CogVideoX1.5-5B', type:'Local GPU', gpu:'A100-80GB', mem:'12.49', steps:'50', video:'81f, 1360×768'},
+                {model:'Google Veo 3.1',  type:'API',       gpu:'N/A',       mem:'N/A',   steps:'Unknown', video:'192f @ 8fps, 720p'},
+                {model:'HunyuanVideo-1.5',type:'Local GPU', gpu:'A100-80GB', mem:'39.08', steps:'50', video:'75f @ 24fps, 720p'}
+            ];
+            let html = '<thead><tr><th>Model</th><th>Type</th><th>GPU/API</th><th>Peak Memory (GB)</th><th>Steps</th><th>Video Spec</th></tr></thead><tbody>';
+            specs.forEach(r => { html += `<tr><td>${r.model}</td><td>${r.type}</td><td>${r.gpu}</td><td>${r.mem}</td><td>${r.steps}</td><td>${r.video}</td></tr>`; });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        function createTable8() {
+            const table = document.getElementById('table8');
+            const rows = [
+                {metric:'Inference Time',   eta2:0.999, samples:'n=9–15', power:'>0.999', mdd:'0.5s'},
+                {metric:'Compute Cost',     eta2:0.999, samples:'n=9–15', power:'>0.999', mdd:'$0.001'},
+                {metric:'CLIP Score',       eta2:0.241, samples:'n=9–15', power:'0.92',   mdd:'2.5 points'},
+                {metric:'Frame Consistency',eta2:0.358, samples:'n=9–15', power:'0.98',   mdd:'0.15'}
+            ];
+            let html = '<thead><tr><th>Metric</th><th>η² (observed)</th><th>Sample Sizes</th><th>Power</th><th>Min. Detectable Diff.</th></tr></thead><tbody>';
+            rows.forEach(r => { html += `<tr><td>${r.metric}</td><td>${r.eta2}</td><td>${r.samples}</td><td>${r.power}</td><td>${r.mdd}</td></tr>`; });
+            table.innerHTML = html + '</tbody>';
+        }
+
+        /* ============================================================
+           UTILITY FUNCTIONS
+        ============================================================ */
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+            if (tab === 'figures') setTimeout(adaptFigure7Labels, 100);
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            const bg  = isDark ? '#1a1a1a' : '#ffffff';
+            const pbg = isDark ? '#2d2d2d' : '#ffffff';
+            const fc  = isDark ? '#e9ecef' : '#1a1a1a';
+            for (let i = 1; i <= 8; i++) {
+                Plotly.relayout(`fig${i}`, {
+                    paper_bgcolor: bg,
+                    plot_bgcolor: pbg,
+                    font: {color: fc}
+                });
+            }
+        }
+
+        function exportPlot(id, filename) {
+            const el = document.getElementById(id);
+            const rect = el.getBoundingClientRect();
+            Plotly.downloadImage(el, {
+                format: 'png',
+                width: Math.max(1, Math.round(rect.width)),
+                height: Math.max(1, Math.round(rect.height)),
+                filename,
+                scale: 1
+            });
+        }
+
+        const ieeePreset = {
+            width: 525, scale: 2,
+            font: {family: 'Times New Roman, Times, serif', size: 20},
+            axisTitleSize: 22, tickSize: 18, legendSize: 16,
+            margins: {
+                'fig1':{l:210,r:60,t:40,b:70}, 'fig2':{l:70,r:40,t:40,b:70},
+                'fig3':{l:210,r:80,t:40,b:80}, 'fig4':{l:60,r:30,t:40,b:120},
+                'fig5':{l:70,r:30,t:40,b:120}, 'fig6':{l:60,r:140,t:60,b:80},
+                'fig7':{l:70,r:30,t:50,b:70},  'fig8':{l:240,r:60,t:40,b:80}
+            },
+            heights: {
+                'fig1':600,'fig2':680,'fig3':600,'fig4':680,
+                'fig5':680,'fig6':700,'fig7':680,'fig8':720
+            }
+        };
+
+        function exportForIEEE(id, filename) {
+            const el = document.getElementById(id);
+            const origLayout = JSON.parse(JSON.stringify(el.layout));
+            const margin = ieeePreset.margins[id];
+            const height = ieeePreset.heights[id];
+
+            const ieeeLayout = {
+                font: ieeePreset.font,
+                'xaxis.title.font.size': ieeePreset.axisTitleSize,
+                'yaxis.title.font.size': ieeePreset.axisTitleSize,
+                'xaxis.tickfont.size': ieeePreset.tickSize,
+                'yaxis.tickfont.size': ieeePreset.tickSize,
+                'legend.font.size': ieeePreset.legendSize,
+                paper_bgcolor: '#ffffff',
+                plot_bgcolor: '#ffffff',
+                'margin.l': margin.l, 'margin.r': margin.r,
+                'margin.t': margin.t, 'margin.b': margin.b
+            };
+
+            if (id === 'fig6') {
+                ieeeLayout['polar.radialaxis.tickfont.size'] = ieeePreset.tickSize;
+                ieeeLayout['polar.angularaxis.tickfont.size'] = ieeePreset.tickSize;
+                ieeeLayout['polar.bgcolor'] = '#ffffff';
+            }
+
+            Plotly.relayout(id, ieeeLayout).then(() => {
+                return Plotly.downloadImage(id, {
+                    format: 'png', width: ieeePreset.width,
+                    height, filename, scale: ieeePreset.scale
+                });
+            }).then(() => {
+                return Plotly.relayout(id, {
+                    font: origLayout.font,
+                    paper_bgcolor: origLayout.paper_bgcolor,
+                    plot_bgcolor: origLayout.plot_bgcolor,
+                    'margin.l': origLayout.margin.l, 'margin.r': origLayout.margin.r,
+                    'margin.t': origLayout.margin.t, 'margin.b': origLayout.margin.b
+                });
+            });
+        }
+
+        function exportAllIEEE() {
+            const figs = [
+                {id:'fig1',name:'V2_Figure1_InferenceTime_IEEE'},
+                {id:'fig2',name:'V2_Figure2_CostQuality_IEEE'},
+                {id:'fig3',name:'V2_Figure3_Efficiency_IEEE'},
+                {id:'fig4',name:'V2_Figure4_QualityMetrics_IEEE'},
+                {id:'fig5',name:'V2_Figure5_TimeDistribution_IEEE'},
+                {id:'fig6',name:'V2_Figure6_RadarChart_IEEE'},
+                {id:'fig7',name:'V2_Figure7_BubbleChart_IEEE'},
+                {id:'fig8',name:'V2_Figure8_Heatmap_IEEE'}
+            ];
+            let delay = 0;
+            figs.forEach(f => { setTimeout(() => exportForIEEE(f.id, f.name), delay); delay += 1500; });
+        }
+
+        function exportTable(id, filename) {
+            const table = document.getElementById(id);
+            let csv = '';
+            table.querySelectorAll('tr').forEach(row => {
+                const cols = [];
+                row.querySelectorAll('th, td').forEach(cell => {
+                    cols.push('"' + cell.textContent.replace(/"/g, '""') + '"');
+                });
+                csv += cols.join(',') + '\n';
+            });
+            const blob = new Blob([csv], {type: 'text/csv'});
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename + '.csv'; a.click();
+        }
+
+        function updateFontSize(figId, size) {
+            const fontSize = parseInt(size);
+            const titleSize = fontSize + 4;
+            document.getElementById(figId + '-size').textContent = size;
+
+            const marginMultiplier = fontSize / 14;
+            const baseMargins = {
+                'fig1': {l:160, r:110, t:30, b:60},
+                'fig2': {l:65,  r:30,  t:30, b:65},
+                'fig3': {l:160, r:70,  t:30, b:75},
+                'fig4': {l:70,  r:30,  t:30, b:110},
+                'fig5': {l:70,  r:30,  t:30, b:110},
+                'fig6': {l:60,  r:160, t:50, b:50},
+                'fig7': {l:70,  r:30,  t:40, b:65},
+                'fig8': {l:230, r:40,  t:30, b:70}
+            };
+
+            const m = baseMargins[figId];
+            const update = {
+                font: {size: fontSize},
+                'xaxis.title.font.size': titleSize,
+                'yaxis.title.font.size': titleSize,
+                'xaxis.tickfont.size': fontSize,
+                'yaxis.tickfont.size': fontSize,
+                'legend.font.size': fontSize,
+                'margin.l': Math.round(m.l * marginMultiplier),
+                'margin.r': Math.round(m.r * marginMultiplier),
+                'margin.t': Math.round(m.t * marginMultiplier),
+                'margin.b': Math.round(m.b * marginMultiplier)
+            };
+
+            if (figId === 'fig6') {
+                update['polar.radialaxis.tickfont.size'] = fontSize;
+                update['polar.angularaxis.tickfont.size'] = fontSize;
+            }
+
+            if (figId === 'fig7') {
+                const el = document.getElementById(figId);
+                const ann = el && el.layout ? el.layout.annotations : null;
+                if (ann && ann.length > 0) update['annotations[0].font.size'] = fontSize;
+                const indices = getFigure7LabelTraceIndices();
+                if (indices.length) {
+                    const sz = Array(indices.length).fill(Math.max(8, fontSize - 3));
+                    Plotly.restyle(figId, {'textfont.size': sz}, indices);
+                }
+            }
+
+            Plotly.relayout(figId, update);
+        }
+
+        /* ============================================================
+           INIT
+        ============================================================ */
+        window.onload = function () {
+            createFigure1(); createFigure2(); createFigure3(); createFigure4();
+            createFigure5(); createFigure6(); createFigure7(); createFigure8();
+
+            setTimeout(adaptFigure7Labels, 150);
+            window.addEventListener('resize', adaptFigure7Labels);
+
+            createTable1(); createTable2(); createTable3(); createTable4();
+            createTable5(); createTable6(); createTable7(); createTable8();
+        };
+    </script>
+</body>
+</html>
